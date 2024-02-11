@@ -27,7 +27,6 @@ Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services
   - [Prerequisites](#local-development-prerequisites)
   - [Setup & Run](#setup--run)
   - [Testing](#testing)
-- [Motivation]
 - [Contributing](#contributing)
 - [Project Motivation](#project-motivation)
 - [Licensing](#licensing)
