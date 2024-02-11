@@ -1,5 +1,5 @@
 <p align="center">
-    LOGO
+  <img src="./assets/logo.png" alt="Mini AWS Mock Logo" />
 </p>
 
 # Mini AWS Mock
