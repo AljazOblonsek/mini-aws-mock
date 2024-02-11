@@ -1,0 +1,13 @@
+.github/
+.vscode/
+assets/
+coverage/
+data/
+data-test/
+dist/
+initial-data/
+node_modules/
+tests/
+*.env
+.gitignore
+README.md

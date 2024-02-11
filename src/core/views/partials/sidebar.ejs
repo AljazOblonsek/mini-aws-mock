@@ -1,0 +1,30 @@
+<style>
+  .menu {
+    border-top: none !important;
+  }
+
+  .item {
+    span {
+      margin-left: 0.4rem;
+    }
+  }
+</style>
+
+<aside class="ui sidebar visible vertical menu large">
+  <a href="/ui" class="item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+  <div class="item">
+    <div class="header">SNS</div>
+    <div class="menu">
+      <a
+        href="/ui/sns-topics"
+        class="item <% if (currentUiPath === 'sns-topics') { %> active <% } %>"
+        ><i class="fa-solid fa-inbox"></i><span>Topics</span></a
+      >
+      <a
+        href="/ui/sns-publish-history"
+        class="item <% if (currentUiPath === 'sns-publish-history') { %> active <% } %>"
+        ><i class="fa-solid fa-clock-rotate-left"></i><span>Publish History</span></a
+      >
+    </div>
+  </div>
+</aside>

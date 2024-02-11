@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <%- include(assetsPath + '/core/views/partials/head'); %>
+
+    <title>SNS - Topics</title>
+  </head>
+  <body>
+    <%- include(assetsPath + '/core/views/partials/sidebar'); %>
+    <div class="main-content">
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <h1>Topics</h1>
+        <button class="ui secondary button" style="height: 100%" onclick="openAddTopicModal()">Add Topic</button>
+      </div>
+
+      <div class="ui form" style="margin-top: 1rem;">
+        <div class="field">
+          <input type="text" name="name" id="search-input" placeholder="Search">
+        </div>
+      </div>
+
+      <div class="responsive-table-wrapper" style="margin-top: 1rem;">
+        <table class="ui compact celled table" style="min-height: 10rem;">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Arn</th>
+              <th>Publish History</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="topics-table-body">
+            <% if(topics.length === 0) { %>
+              <tr>
+                <td class="center aligned" colspan="4">No topics.</td>
+              </tr>
+            <% } else { %>
+              <% topics.forEach(function(topic) { %>
+                <tr id="topic-<%= topic.name %>">
+                  <td data-label="Name"><%= topic.name %></td>
+                  <td data-label="Arn"><%= topic.arn %></td>
+                  <td data-label="Publish History">
+                    <a href="/ui/sns-publish-history?search=<%= topic.arn %>"><%= topic.numberOfPublishes %> publishes</a>
+                  </td>
+                  <td data-label="Actions" class="center">
+                    <button class="ui red icon button" onclick="openDeleteTopicModal(<%= JSON.stringify(topic) %>)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="add-topic-modal" class="ui modal">
+      <div class="header">
+        Add Topic
+      </div>
+        <div class="content">
+          <form class="ui form" onsubmit="event.preventDefault();onAddTopicClick()">
+            <div class="field">
+              <label>Name</label>
+              <input type="text" name="name" id="add-topic-modal-name-input">
+              <div class="field error">
+                <label id="add-topic-modal-name-input-error"></label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="actions">
+          <button class="ui button">Cancel</button>
+          <button class="ui button green" onclick="onAddTopicClick()">Add</button>
+        </div>
+    </div>
+
+    <div id="delete-topic-modal" class="ui mini modal">
+      <div class="header">
+        Delete Topic
+      </div>
+      <div class="content">
+        <p id="delete-topic-modal-description">Are you sure you want to delete topic?</p>
+        <div class="ui form">
+          <div class="field error">
+            <label id="delete-topic-modal-error"></label>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="ui button red negative">No</button>
+        <button class="ui button green" onclick="onConfirmDeleteTopicClick()">Yes</button>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    let originalTopics = <%- JSON.stringify(topics) %>
+
+    // Add topic
+    const openAddTopicModal = () => {
+      $('#add-topic-modal').modal('show');
+    }
+
+    const onAddTopicClick = async () => {
+      const errorElement = document.getElementById('add-topic-modal-name-input-error');
+      errorElement.innerText = '';
+
+      const topicName = document.getElementById('add-topic-modal-name-input').value;
+
+      if (!topicName) {
+        errorElement.innerText = 'Name is required.'
+      }
+
+      try {
+        const fetchResponse = await fetch('/api/sns-topics', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ topicName }),
+        });
+
+        if (!fetchResponse.ok) {
+          const response = await fetchResponse.json();
+          errorElement.innerText = response.error;
+          return;
+        }
+
+        const response = await fetchResponse.json();
+
+        const topicsTableBodyElement = document.getElementById('topics-table-body');
+
+        if (topicsTableBodyElement.innerHTML.includes('No topics')) {
+          topicsTableBodyElement.innerHTML = `
+            <tr id="topic-${response.name}">
+              <td data-label="Name">${response.name}</td>
+              <td data-label="Arn">${response.arn}</td>
+              <td data-label="Publish History">
+                <a href="/ui/sns-publish-history?search=${response.arn}">0 publishes</a>
+              </td>
+              <td data-label="Actions" class="center">
+                <button class="ui red icon button" onclick='openDeleteTopicModal(${JSON.stringify(response)})'>
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        } else {
+          topicsTableBodyElement.innerHTML += `
+            <tr id="topic-${response.name}">
+              <td data-label="Name">${response.name}</td>
+              <td data-label="Arn">${response.arn}</td>
+              <td data-label="Publish History">
+                <a href="/ui/sns-publish-history?search=${response.arn}">0 publishes</a>  
+              </td>
+              <td data-label="Actions" class="center">
+                <button class="ui red icon button" onclick='openDeleteTopicModal(${JSON.stringify(response)})'>
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }
+
+        document.getElementById('add-topic-modal-name-input').value = '';
+
+        originalTopics.push(response);
+
+        $('#add-topic-modal').modal('hide');
+      } catch (error) {
+        errorElement.innerText = 'An unknown error occurred.'
+      }
+    }
+
+    // Delete topic
+    let selectedTopic = null;
+
+    const openDeleteTopicModal = (topic) => {
+      selectedTopic = { ...topic };
+
+      const deleteTopicModalDescriptionElement = document.getElementById('delete-topic-modal-description');
+
+      deleteTopicModalDescriptionElement.innerHTML = `Are you sure you want to delete <b>${topic.name}</b>?`;
+
+      $('#delete-topic-modal').modal('show');
+    }
+
+    const onConfirmDeleteTopicClick = async () => {
+      const errorElement = document.getElementById('delete-topic-modal-error');
+
+      errorElement.innerText = '';
+
+      try {
+        const fetchResponse = await fetch(`/api/sns-topics/${selectedTopic.arn}`, { method: 'DELETE' });
+
+        if (!fetchResponse.ok) {
+          const response = await fetchResponse.json();
+          errorElement.innerText = response.error;
+          return;
+        }
+
+        document.getElementById(`topic-${selectedTopic.name}`).remove();
+
+        const topicsTableBodyElement = document.getElementById('topics-table-body');
+
+        if (topicsTableBodyElement.innerHTML.trim() === '') {
+          topicsTableBodyElement.innerHTML = `
+            <tr>
+              <td class="center aligned" colspan="4">No topics.</td>
+            </tr>
+          `;
+        }
+        
+        originalTopics = originalTopics.filter(e => e.name !== selectedTopic.name)
+
+        $('#delete-topic-modal').modal('hide');
+      } catch (error) {
+        errorElement.innerText = 'An unknown error occurred.'
+      }
+    }
+
+    // Search
+    const rerenderTable = (topics) => {
+      const table = document.getElementById('topics-table-body');
+
+      if (topics.length <= 0) {
+        table.innerHTML = `
+          <tr>
+            <td class="center aligned" colspan="4">No topics found.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = topics.map(e => `
+        <tr id="topic-${e.name}">
+          <td data-label="Name">${e.name}</td>
+          <td data-label="Arn">${e.arn}</td>
+          <td data-label="Publish History">
+            <a href="/ui/sns-publish-history?search=${e.arn}">${e.numberOfPublishes} publishes</a>  
+          </td>
+          <td data-label="Actions" class="center">
+            <button class="ui red icon button" onclick='openDeleteTopicModal(${JSON.stringify(e)})'>
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('')
+    }
+
+    document.getElementById('search-input').addEventListener('keyup', (e) => {
+      if (!e.target.value) {
+        changeSearchInUrl('');
+        rerenderTable(originalTopics);
+        return;
+      }
+
+      changeSearchInUrl(e.target.value.toLowerCase());
+      const filteredTopics = originalTopics.filter(topic =>
+        topic.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
+        topic.arn.toLowerCase().includes(e.target.value.toLowerCase())
+      );
+      rerenderTable(filteredTopics);
+    })
+
+    const initialSearch = getSearchFromUrl();
+
+    if (initialSearch) {
+      document.getElementById('search-input').value = initialSearch;
+      const filteredTopics = originalTopics.filter(topic =>
+        topic.name.toLowerCase().includes(initialSearch.toLowerCase()) ||
+        topic.arn.toLowerCase().includes(initialSearch.toLowerCase())
+      );
+      rerenderTable(filteredTopics);
+    }
+
+    // Real time updates
+    notificationsEventSource.addEventListener('message', (e) => {
+      const notification = JSON.parse(e.data);
+      console.log(notification)
+
+      if (notification.type === 'SNS.Publish') {
+        const topicIndex = originalTopics.findIndex(e => e.arn === notification.payload.topicArn);
+
+        if (topicIndex === -1) {
+          return;
+        }
+
+        console.log(originalTopics[topicIndex])
+
+        originalTopics[topicIndex].numberOfPublishes = 
+          originalTopics[topicIndex].numberOfPublishes ?  originalTopics[topicIndex].numberOfPublishes + 1 : 1;
+
+        const search = document.getElementById('search-input').value;
+
+        if (!search) {
+          rerenderTable(originalTopics);
+          return;
+        }
+
+        const filteredTopics = originalTopics.filter(topic =>
+          topic.name.toLowerCase().includes(search.toLowerCase()) ||
+          topic.arn.toLowerCase().includes(search.toLowerCase())
+        );
+        rerenderTable(filteredTopics);
+      }
+    });
+  </script>
+</html>
