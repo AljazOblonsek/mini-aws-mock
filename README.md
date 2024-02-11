@@ -73,11 +73,11 @@ aws --endpoint http://localhost:8000 sns publish --topic-arn "arn:aws:sns:us-eas
 
 - Access the dashboard at [http://localhost:8000/ui](http://localhost:8000/ui).
 
-_Hint: The dashboard updates in real-time when you publish to SNS.._
+_Hint: The dashboard updates in real-time when you publish to SNS._
 
 ## Docker & Docker Compose
 
-The `aljazo/mini-aws-mock` Docker container is the recommended method for using the mock. Find it on [Docker Hub](add-url).
+The `aljazo/mini-aws-mock` Docker container is the recommended method for using the mock. Find it on [Docker Hub](https://hub.docker.com/r/aljazo/mini-aws-mock).
 
 ### Examples
 
