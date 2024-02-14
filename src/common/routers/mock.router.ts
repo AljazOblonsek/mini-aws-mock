@@ -2,9 +2,11 @@ import { Request, Response, Router } from 'express';
 import { InvalidActionException, ValidationErrorException } from '@/common/exceptions';
 import { logger, verifyV4SignatureMiddleware } from '@/core';
 import { snsMockHandlerMap } from '@/services/sns';
+import { sqsMockHandlerMap } from '@/services/sqs';
 
 const mockHandlerMap = {
   ...snsMockHandlerMap,
+  ...sqsMockHandlerMap,
 };
 
 const mockRouter = Router();
