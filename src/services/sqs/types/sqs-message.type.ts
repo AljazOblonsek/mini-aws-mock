@@ -12,10 +12,11 @@ export type SqsMessage = {
   messageBody: string;
   md5OfMessageBody: string;
   delaySeconds?: number;
+  visibilityTimeout: number;
   messageAttributes: SqsMessageAttribute[];
   md5OfMessageAttributes?: string;
   queueUrl: string;
   receiptHandle?: string;
-  receiptHandleSentAt?: string;
+  receiptHandleSentAt?: Date;
   createdAt: Date;
 };
