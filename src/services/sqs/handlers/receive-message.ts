@@ -83,7 +83,7 @@ export const receiveMessage = async (req: Request, res: Response) => {
 
   const waitTimeSeconds = body.data.WaitTimeSeconds || queue.receiveMessageWaitTimeSeconds;
 
-  let requestCaceled = false;
+  let requestCanceled = false;
 
   let availableMessages = getAvailableMessagesFromQueue(queue);
 
@@ -93,7 +93,7 @@ export const receiveMessage = async (req: Request, res: Response) => {
     );
 
     for (let i = 0; i < waitTimeSeconds; i++) {
-      if (requestCaceled) {
+      if (requestCanceled) {
         return;
       }
 
@@ -111,12 +111,12 @@ export const receiveMessage = async (req: Request, res: Response) => {
 
       res.on('close', () => {
         logger.debug('[SQS] ReceiveMessage - Request canceled while polling.');
-        requestCaceled = true;
+        requestCanceled = true;
       });
     }
   }
 
-  if (requestCaceled) {
+  if (requestCanceled) {
     return;
   }
 
