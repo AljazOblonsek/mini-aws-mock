@@ -63,7 +63,7 @@ const getAvailableMessagesFromQueue = (queue: SqsQueue): SqsMessage[] => {
   return availableMessages;
 };
 
-export const receiveMessage = (req: Request, res: Response) => {
+export const receiveMessage = async (req: Request, res: Response) => {
   const body = receiveMessageSchema.safeParse({
     ...req.body,
     MessageAttributeNames: extractMessageAttributeNamesFromObject(req.body),
@@ -83,6 +83,8 @@ export const receiveMessage = (req: Request, res: Response) => {
 
   const waitTimeSeconds = body.data.WaitTimeSeconds || queue.receiveMessageWaitTimeSeconds;
 
+  let requestCaceled = false;
+
   let availableMessages = getAvailableMessagesFromQueue(queue);
 
   if (waitTimeSeconds > 0) {
@@ -91,6 +93,10 @@ export const receiveMessage = (req: Request, res: Response) => {
     );
 
     for (let i = 0; i < waitTimeSeconds; i++) {
+      if (requestCaceled) {
+        return;
+      }
+
       logger.debug(`[SQS] ReceiveMessage - Polling for ${i + 1} seconds.`);
 
       availableMessages = getAvailableMessagesFromQueue(queue);
@@ -101,14 +107,17 @@ export const receiveMessage = (req: Request, res: Response) => {
       }
 
       // Wait for 1 second and try again
-      // await new Promise((resolve) => setTimeout(resolve, (i + 1) * 1000));
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, (i + 1) * 1000);
+      await new Promise((resolve) => setTimeout(resolve, 1 * 1000));
 
-      req.on('close', () => {
+      res.on('close', () => {
         logger.debug('[SQS] ReceiveMessage - Request canceled while polling.');
-        return;
+        requestCaceled = true;
       });
     }
+  }
+
+  if (requestCaceled) {
+    return;
   }
 
   if (availableMessages.length <= 0) {
