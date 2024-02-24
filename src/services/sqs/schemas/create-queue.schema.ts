@@ -3,10 +3,10 @@ import { baseSchema } from '@/core';
 import {
   DEFAULT_RECEIVE_MESSAGE_WAIT_TIME_IN_SECONDS,
   DEFAULT_VISIBILITY_TIMEOUT_IN_SECONDS,
-  MAXIMUM_MESSAGE_SIZE_IN_KB,
+  MAXIMUM_MESSAGE_SIZE_IN_BYTES,
   MAXIMUM_RECEIVE_MESSAGE_WAIT_TIME_IN_SECONDS,
   MAXIMUM_VISIBILITY_TIMEOUT_IN_SECONDS,
-  MINIMUM_MESSAGE_SIZE_IN_KB,
+  MINIMUM_MESSAGE_SIZE_IN_BYTES,
 } from '../constants/sqs-queue.constants';
 
 export const createQueueSchema = baseSchema.extend({
@@ -25,14 +25,14 @@ export const createQueueSchema = baseSchema.extend({
         .default(DEFAULT_RECEIVE_MESSAGE_WAIT_TIME_IN_SECONDS),
       MaximumMessageSize: z.coerce
         .number()
-        .min(MINIMUM_MESSAGE_SIZE_IN_KB)
-        .max(MAXIMUM_MESSAGE_SIZE_IN_KB)
-        .default(MAXIMUM_MESSAGE_SIZE_IN_KB),
+        .min(MINIMUM_MESSAGE_SIZE_IN_BYTES)
+        .max(MAXIMUM_MESSAGE_SIZE_IN_BYTES)
+        .default(MAXIMUM_MESSAGE_SIZE_IN_BYTES),
     })
     .default({
       VisibilityTimeout: DEFAULT_VISIBILITY_TIMEOUT_IN_SECONDS,
       ReceiveMessageWaitTimeSeconds: DEFAULT_RECEIVE_MESSAGE_WAIT_TIME_IN_SECONDS,
-      MaximumMessageSize: MAXIMUM_MESSAGE_SIZE_IN_KB,
+      MaximumMessageSize: MAXIMUM_MESSAGE_SIZE_IN_BYTES,
     }),
 });
 
