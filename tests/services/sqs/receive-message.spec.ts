@@ -50,6 +50,7 @@ describe('SQS - ReceiveMessage', () => {
     });
 
     jest.spyOn(sqsQueueDb, 'getFirstByKeyValue').mockReturnValueOnce(queueStub);
+    jest.spyOn(sqsMessageDb, 'getAllByKeyValue').mockReturnValue([]);
 
     const response = await sqsClient.send(command);
     expect(response).not.toHaveProperty('Messages');
@@ -258,5 +259,128 @@ describe('SQS - ReceiveMessage', () => {
     expect(response.Messages![0].Body).toBe(messagesStub[1].messageBody);
     expect(response.Messages![0].MD5OfBody).toBe(messagesStub[1].md5OfMessageBody);
     expect(response.Messages![0].ReceiptHandle).toBe(receiptHandleStub);
+  });
+
+  describe('message attributes', () => {
+    it('should return all message attributes if all are requested', async () => {
+      const queueStub = generateSqsQueueStub();
+      const receiptHandleStub = faker.string.uuid();
+
+      const now = new Date();
+
+      const messagesStub = [
+        generateSqsMessageStub({
+          queueUrl: queueStub.url,
+          messageAttributes: [
+            {
+              name: 'Type',
+              value: {
+                dataType: 'String',
+                stringValue: 'AudioFormatConvert',
+              },
+            },
+            {
+              name: 'Processor',
+              value: {
+                dataType: 'String',
+                stringValue: 'Fast',
+              },
+            },
+          ],
+          createdAt: new Date(now.getTime() - 180 * 1000),
+        }),
+      ];
+
+      jest.spyOn(sqsQueueDb, 'getFirstByKeyValue').mockReturnValueOnce({ ...queueStub });
+      jest.spyOn(sqsMessageDb, 'getAllByKeyValue').mockReturnValue([...messagesStub]);
+      jest
+        .spyOn(sqsMessageDb, 'updateFirstByKeyValue')
+        .mockImplementation(({ key, value, data }) => {
+          const foundMessage = messagesStub.find((e) => e[key] === value)!;
+          return { ...foundMessage, ...data, receiptHandle: receiptHandleStub };
+        });
+
+      const command = new ReceiveMessageCommand({
+        QueueUrl: queueStub.url,
+        MessageAttributeNames: ['All'],
+      });
+
+      const response = await sqsClient.send(command);
+
+      expect(response).toHaveProperty('Messages');
+      expect(response.Messages).toHaveLength(1);
+      expect(response.Messages![0].MessageId).toBe(messagesStub[0].messageId);
+      expect(response.Messages![0].Body).toBe(messagesStub[0].messageBody);
+      expect(response.Messages![0].MD5OfBody).toBe(messagesStub[0].md5OfMessageBody);
+      expect(response.Messages![0].ReceiptHandle).toBe(receiptHandleStub);
+      expect(response.Messages![0].MessageAttributes).toBeTruthy();
+      expect(response.Messages![0].MessageAttributes!.Type).toMatchObject({
+        DataType: 'String',
+        StringValue: 'AudioFormatConvert',
+      });
+      expect(response.Messages![0].MessageAttributes!.Processor).toMatchObject({
+        DataType: 'String',
+        StringValue: 'Fast',
+      });
+    });
+
+    it('should return only requested message attributes', async () => {
+      const queueStub = generateSqsQueueStub();
+      const receiptHandleStub = faker.string.uuid();
+
+      const now = new Date();
+
+      const messagesStub = [
+        generateSqsMessageStub({
+          queueUrl: queueStub.url,
+          messageAttributes: [
+            {
+              name: 'Type',
+              value: {
+                dataType: 'String',
+                stringValue: 'AudioFormatConvert',
+              },
+            },
+            {
+              name: 'Processor',
+              value: {
+                dataType: 'String',
+                stringValue: 'Fast',
+              },
+            },
+          ],
+          createdAt: new Date(now.getTime() - 180 * 1000),
+        }),
+      ];
+
+      jest.spyOn(sqsQueueDb, 'getFirstByKeyValue').mockReturnValueOnce({ ...queueStub });
+      jest.spyOn(sqsMessageDb, 'getAllByKeyValue').mockReturnValue([...messagesStub]);
+      jest
+        .spyOn(sqsMessageDb, 'updateFirstByKeyValue')
+        .mockImplementation(({ key, value, data }) => {
+          const foundMessage = messagesStub.find((e) => e[key] === value)!;
+          return { ...foundMessage, ...data, receiptHandle: receiptHandleStub };
+        });
+
+      const command = new ReceiveMessageCommand({
+        QueueUrl: queueStub.url,
+        MessageAttributeNames: ['Processor'],
+      });
+
+      const response = await sqsClient.send(command);
+
+      expect(response).toHaveProperty('Messages');
+      expect(response.Messages).toHaveLength(1);
+      expect(response.Messages![0].MessageId).toBe(messagesStub[0].messageId);
+      expect(response.Messages![0].Body).toBe(messagesStub[0].messageBody);
+      expect(response.Messages![0].MD5OfBody).toBe(messagesStub[0].md5OfMessageBody);
+      expect(response.Messages![0].ReceiptHandle).toBe(receiptHandleStub);
+      expect(response.Messages![0].MessageAttributes).toBeTruthy();
+      expect(response.Messages![0].MessageAttributes).not.toHaveProperty('Type');
+      expect(response.Messages![0].MessageAttributes!.Processor).toMatchObject({
+        DataType: 'String',
+        StringValue: 'Fast',
+      });
+    });
   });
 });

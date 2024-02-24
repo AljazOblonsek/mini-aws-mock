@@ -10,6 +10,28 @@ import { getReceiveMessageResponse } from '../responses/get-receive-message-resp
 import { SqsMessage } from '../types/sqs-message.type';
 import { randomUUID } from 'crypto';
 
+const extractMessageAttributeNamesFromObject = (
+  object: Record<string, unknown>
+): string[] | undefined => {
+  const messageAttributeNames: string[] = [];
+
+  for (let i = 1; i <= 50; i++) {
+    const name = object[`MessageAttributeName.${i}`];
+
+    if (!name) {
+      break;
+    }
+
+    messageAttributeNames.push(name as string);
+  }
+
+  if (messageAttributeNames.length <= 0) {
+    return undefined;
+  }
+
+  return messageAttributeNames;
+};
+
 const getAvailableMessagesFromQueue = (queue: SqsQueue): SqsMessage[] => {
   const availableMessages: SqsMessage[] = [];
 
@@ -42,7 +64,10 @@ const getAvailableMessagesFromQueue = (queue: SqsQueue): SqsMessage[] => {
 };
 
 export const receiveMessage = (req: Request, res: Response) => {
-  const body = receiveMessageSchema.safeParse(req.body);
+  const body = receiveMessageSchema.safeParse({
+    ...req.body,
+    MessageAttributeNames: extractMessageAttributeNamesFromObject(req.body),
+  });
 
   if (!body.success) {
     throw new ValidationErrorException();
@@ -128,6 +153,7 @@ export const receiveMessage = (req: Request, res: Response) => {
     getReceiveMessageResponse({
       requestId: req.headers['x-amzn-requestid'] as string,
       messages: messagesToReceive,
+      messageAttributeNames: body.data.MessageAttributeNames,
     })
   );
 };
