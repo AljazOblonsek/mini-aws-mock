@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <%- include(assetsPath + '/core/views/partials/head'); %>
+
+    <title>SQS - Queues</title>
+  </head>
+  <body>
+    <%- include(assetsPath + '/core/views/partials/sidebar'); %>
+    <div class="main-content">
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <h1>Queues</h1>
+        <button class="ui secondary button" style="height: 100%" onclick="openAddQueueModal()">
+          Add Queue
+        </button>
+      </div>
+
+      <div class="ui form" style="margin-top: 1rem">
+        <div class="field">
+          <input type="text" name="name" id="search-input" placeholder="Search" />
+        </div>
+      </div>
+
+      <div class="responsive-table-wrapper" style="margin-top: 1rem;">
+        <table class="ui compact celled table" style="min-height: 10rem;">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Url</th>
+              <th>Arn</th>
+              <th>Visibility Timeout</th>
+              <th>Receive Message Wait Time</th>
+              <th>Maximum Message Size</th>
+              <th>Messages</th>
+              <th>Message History</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="queues-table-body">
+            <% if(queues.length === 0) { %>
+              <tr>
+                <td class="center aligned" colspan="4">No queues.</td>
+              </tr>
+            <% } else { %>
+              <% queues.forEach(function(queue) { %>
+                <tr id="queue-<%= queue.name %>">
+                  <td data-label="Name"><%= queue.name %></td>
+                  <td data-label="Url"><%= queue.url %></td>
+                  <td data-label="Arn"><%= queue.arn %></td>
+                  <td data-label="Visibility Timeout"><%= queue.visibilityTimeout %> seconds</td>
+                  <td data-label="Receive Message Wait Time"><%= queue.receiveMessageWaitTimeSeconds %> seconds</td>
+                  <td data-label="Maximum Message Size"><%= queue.maximumMessageSize %> bytes</td>
+                  <td data-label="Messages">
+                    <a href="/ui/sqs-messages?search=<%= queue.name %>"><%= queue.numberOfMessages %> messages</a>
+                  </td>
+                  <td data-label="Message History">
+                    <a href="/ui/sqs-message-history?search=<%= queue.name %>"><%= queue.numberOfMessagesInHistory %> messages</a>
+                  </td>
+                  <td data-label="Actions" class="center">
+                    <div style="display: flex;">
+                      <button class="ui red icon button" data-content="Purge queue" data-position="top center">
+                        <i class="fa-solid fa-ban"></i>
+                      </button>
+                      <button class="ui red icon button" data-content="Delete queue" data-position="top center">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    $('.button').popup();
+  </script>
+</html>

@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { errorMiddleware } from '@/core/middleware/error.middleware';
 import { requestIdMiddleware } from '@/core/middleware/request-id.middleware';
 import { snsRouters } from '@/services/sns';
+import { sqsRouters } from '@/services/sqs';
 import { env, sseRouter } from './core';
 import { join } from 'path';
 import { mockRouter } from './common/routers/mock.router';
@@ -50,6 +51,8 @@ app.use(mockRouter);
 
 app.use(snsRouters.api);
 app.use(snsRouters.ui);
+
+app.use(sqsRouters.ui);
 
 app.use(errorMiddleware);
 

@@ -27,4 +27,24 @@
       >
     </div>
   </div>
+  <div class="item">
+    <div class="header">SQS</div>
+    <div class="menu">
+      <a
+        href="/ui/sqs-queues"
+        class="item <% if (currentUiPath === 'sqs-queues') { %> active <% } %>"
+        ><i class="fa-solid fa-inbox"></i><span>Queues</span></a
+      >
+      <a
+        href="/ui/sqs-messages"
+        class="item <% if (currentUiPath === 'sqs-messages') { %> active <% } %>"
+        ><i class="fa-solid fa-message"></i><span>Messages</span></a
+      >
+      <a
+        href="/ui/sqs-message-history"
+        class="item <% if (currentUiPath === 'sqs-message-history') { %> active <% } %>"
+        ><i class="fa-solid fa-clock-rotate-left"></i><span>Message History</span></a
+      >
+    </div>
+  </div>
 </aside>
