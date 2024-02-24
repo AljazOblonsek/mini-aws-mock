@@ -29,7 +29,7 @@ mockRouter.post(
       throw new InvalidActionException();
     }
 
-    handler(req, res);
+    await handler(req, res);
   })
 );
 
