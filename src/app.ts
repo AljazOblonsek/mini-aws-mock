@@ -5,6 +5,7 @@ import { snsRouters } from '@/services/sns';
 import { env, sseRouter } from './core';
 import { join } from 'path';
 import { mockRouter } from './common/routers/mock.router';
+import { startRefreshSqsMessageVisbilityInterval } from './services/sqs';
 
 const app = express();
 
@@ -52,5 +53,7 @@ app.use(snsRouters.api);
 app.use(snsRouters.ui);
 
 app.use(errorMiddleware);
+
+startRefreshSqsMessageVisbilityInterval();
 
 export default app;
