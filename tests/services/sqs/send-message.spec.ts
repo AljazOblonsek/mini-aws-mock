@@ -3,6 +3,8 @@ import { TestingModule } from '@/tests/utils/testing-module';
 import { SqsQueue } from '@/services/sqs/types/sqs-queue.type';
 import { sqsQueueDb } from '@/services/sqs/dbs/sqs-queue.db';
 import { createHash } from 'crypto';
+import { generateSqsQueueStub } from '@/services/sqs/stubs/generate-sqs-queue.stub';
+import { faker } from '@faker-js/faker';
 
 describe('SQS - SendMessage', () => {
   let app: TestingModule;
@@ -39,6 +41,19 @@ describe('SQS - SendMessage', () => {
     });
 
     await expect(sqsClient.send(command)).rejects.toThrow("The specified queue doesn't exist.");
+  });
+
+  it('should throw validation error if message body is too big', async () => {
+    const queueStub = generateSqsQueueStub({ maximumMessageSize: 1024 });
+
+    jest.spyOn(sqsQueueDb, 'getFirstByKeyValue').mockReturnValueOnce(queueStub);
+
+    const command = new SendMessageCommand({
+      QueueUrl: queueStub.url,
+      MessageBody: faker.string.alphanumeric({ length: 2048 }),
+    });
+
+    await expect(sqsClient.send(command)).rejects.toThrow('MessageBody is too big.');
   });
 
   it('should add message and return message id and md5 of message body', async () => {

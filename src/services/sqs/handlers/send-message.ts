@@ -30,6 +30,10 @@ export const sendMessage = (req: Request, res: Response) => {
     throw new QueueDoesNotExistException();
   }
 
+  if (new Blob([body.data.MessageBody]).size > queue.maximumMessageSize) {
+    throw new ValidationErrorException('MessageBody is too big.');
+  }
+
   const message = sqsMessageDb.create({
     messageId: randomUUID(),
     messageBody: body.data.MessageBody,
