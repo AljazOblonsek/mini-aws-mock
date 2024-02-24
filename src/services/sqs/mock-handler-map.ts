@@ -13,4 +13,4 @@ export const mockHandlerMap = {
   ListQueues: listQueues,
   SendMessage: sendMessage,
   ReceiveMessage: receiveMessage,
-} as Readonly<Record<string, (req: Request, res: Response) => Response>>;
+} as Readonly<Record<string, (req: Request, res: Response) => Response | Promise<Response>>>;
