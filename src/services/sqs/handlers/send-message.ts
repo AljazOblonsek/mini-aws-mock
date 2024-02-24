@@ -35,6 +35,7 @@ export const sendMessage = (req: Request, res: Response) => {
     messageBody: body.data.MessageBody,
     md5OfMessageBody: createHash('md5').update(body.data.MessageBody).digest('hex'),
     delaySeconds: body.data.DelaySeconds,
+    visibilityTimeout: queue.visibilityTimeout,
     messageAttributes:
       body.data.MessageAttributes?.map((e) => ({
         name: e.Name,
