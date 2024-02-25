@@ -39,7 +39,7 @@
           <tbody id="queues-table-body">
             <% if(queues.length === 0) { %>
               <tr>
-                <td class="center aligned" colspan="4">No queues.</td>
+                <td class="center aligned" colspan="9">No queues.</td>
               </tr>
             <% } else { %>
               <% queues.forEach(function(queue) { %>
@@ -58,10 +58,13 @@
                   </td>
                   <td data-label="Actions" class="center">
                     <div style="display: flex;">
-                      <button class="ui red icon button" data-content="Purge queue" data-position="top center">
+                      <button class="ui icon button" data-content="Send message" data-position="top center" onclick="openSendMessageModal(<%= JSON.stringify(queue) %>)">
+                        <i class="fa-solid fa-message"></i>
+                      </button>
+                      <button class="ui red icon button" data-content="Purge queue" data-position="top center" onclick="openPurgeQueueModal(<%= JSON.stringify(queue) %>)">
                         <i class="fa-solid fa-ban"></i>
                       </button>
-                      <button class="ui red icon button" data-content="Delete queue" data-position="top center">
+                      <button class="ui red icon button" data-content="Delete queue" data-position="top center" onclick="openDeleteQueueModal(<%= JSON.stringify(queue) %>)">
                         <i class="fa-solid fa-trash"></i>
                       </button>
                     </div>
@@ -72,6 +75,37 @@
           </tbody>
         </table>
       </div>
+    </div>
+
+    <div id="send-message-modal" class="ui modal">
+      <div id="send-message-modal-header" class="header">
+        Send Message
+      </div>
+        <div class="content">
+          <form class="ui form" onsubmit="event.preventDefault();onSendMessageClick()">
+            <div class="field">
+              <label>Message Body</label>
+              <textarea rows="4" id="send-message-modal-message-body-input"></textarea>
+            </div>
+            <div class="field">
+              <label>Message Attributes (JSON array of attributes)</label>
+              <textarea rows="4" id="send-message-modal-message-attributes-input"></textarea>
+            </div>
+            <div class="field">
+              <label>Delay in Seconds</label>
+              <input type="number" id="send-message-modal-delay-seconds-input">
+            </div>
+          </form>
+          <div class="ui form">
+            <div class="field error">
+              <label id="send-message-modal-error"></label>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="ui button">Cancel</button>
+          <button class="ui button green" onclick="onSendMessageClick()">Add</button>
+        </div>
     </div>
 
     <div id="add-queue-modal" class="ui modal">
@@ -108,9 +142,46 @@
           <button class="ui button green" onclick="onAddQueueClick()">Add</button>
         </div>
     </div>
+
+    <div id="purge-queue-modal" class="ui mini modal">
+      <div class="header">
+        Purge Queue
+      </div>
+      <div class="content">
+        <p id="purge-queue-modal-description">Are you sure you want to purge queue?</p>
+        <div class="ui form">
+          <div class="field error">
+            <label id="purge-queue-modal-error"></label>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="ui button red negative">No</button>
+        <button class="ui button green" onclick="onConfirmPurgeQueueClick()">Yes</button>
+      </div>
+    </div>
+
+    <div id="delete-queue-modal" class="ui mini modal">
+      <div class="header">
+        Delete Queue
+      </div>
+      <div class="content">
+        <p id="delete-queue-modal-description">Are you sure you want to delete queue?</p>
+        <div class="ui form">
+          <div class="field error">
+            <label id="delete-queue-modal-error"></label>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="ui button red negative">No</button>
+        <button class="ui button green" onclick="onConfirmDeleteQueueClick()">Yes</button>
+      </div>
+    </div>
   </body>
 
   <script>
+    let selectedQueue = null;
     let originalQueues = <%- JSON.stringify(queues) %>
 
     $('.button').popup();
@@ -121,9 +192,9 @@
         <td data-label="Name">${queue.name}</td>
         <td data-label="Url">${queue.url}</td>
         <td data-label="Arn">${queue.arn}</td>
-        <td data-label="Visibility Timeout">${queue.visibilityTimeout}</td>
-        <td data-label="Receive Message Wait Time">${queue.receiveMessageWaitTimeSeconds}</td>
-        <td data-label="Maximum Message Size">${queue.maximumMessageSize}</td>
+        <td data-label="Visibility Timeout">${queue.visibilityTimeout} seconds</td>
+        <td data-label="Receive Message Wait Time">${queue.receiveMessageWaitTimeSeconds} seconds</td>
+        <td data-label="Maximum Message Size">${queue.maximumMessageSize} bytes</td>
         <td data-label="Messages">
           <a href="/ui/sqs-messages?search=${queue.url}">${queue.numberOfMessages} messages</a>
         </td>
@@ -132,13 +203,16 @@
         </td>
         <td data-label="Actions" class="center">
           <div style="display: flex;">
-          <button class="ui red icon button" data-content="Purge queue" data-position="top center" onClick='openPurgeQueueModal(${JSON.stringify(queue)})'>
-            <i class="fa-solid fa-ban"></i>
-          </button>
-          <button class="ui red icon button" data-content="Delete queue" data-position="top center" onClick='openDeleteQueueModal(${JSON.stringify(queue)})'>
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </div>
+            <button class="ui icon button" data-content="Send message" data-position="top center" onclick='openSendMessageModal(${JSON.stringify(queue)})'>
+              <i class="fa-solid fa-message"></i>
+            </button>
+            <button class="ui red icon button" data-content="Purge queue" data-position="top center" onClick='openPurgeQueueModal(${JSON.stringify(queue)})'>
+              <i class="fa-solid fa-ban"></i>
+            </button>
+            <button class="ui red icon button" data-content="Delete queue" data-position="top center" onClick='openDeleteQueueModal(${JSON.stringify(queue)})'>
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
         </td>
       </tr>
       `;
@@ -188,9 +262,9 @@
         const tableBodyElement = document.getElementById('queues-table-body');
 
         if (tableBodyElement.innerHTML.includes('No queues')) {
-          tableBodyElement.innerHTML = createTableRow(response);
+          tableBodyElement.innerHTML = createTableRow({ ...response, numberOfMessages: 0, numberOfMessagesInHistory: 0 });
         } else {
-          tableBodyElement.innerHTML += createTableRow(response);
+          tableBodyElement.innerHTML += createTableRow({ ...response, numberOfMessages: 0, numberOfMessagesInHistory: 0 });
         }
 
         document.getElementById('add-queue-modal-name-input').value = '';
@@ -198,13 +272,159 @@
         document.getElementById('add-queue-modal-receive-message-wait-time-input').value = '';
         document.getElementById('add-queue-modal-maximum-message-size-input').value = '';
 
-        originalQueues.push(response);
+        originalQueues.push({ ...response, numberOfMessages: 0, numberOfMessagesInHistory: 0 });
 
         $('#add-queue-modal').modal('hide');
         $('.button').popup();
       } catch (error) {
         console.error(error);
         errorElement.innerText = 'An unknown error occurred.';
+      }
+    }
+
+    // Send message
+    const openSendMessageModal = (queue) => {
+      selectedQueue = { ...queue };
+
+      const headerElement = document.getElementById('send-message-modal-header');
+      headerElement.innerHTML = `Send Message - Queue: ${queue.name}`
+
+      $('#send-message-modal').modal('show');
+    }
+
+    const onSendMessageClick = async () => {
+      const errorElement = document.getElementById('send-message-modal-error');
+      errorElement.innerText = '';
+
+      const messageBody = document.getElementById('send-message-modal-message-body-input').value;
+      const messageAttributes = document.getElementById('send-message-modal-message-attributes-input').value;
+      const delaySeconds = document.getElementById('send-message-modal-delay-seconds-input').value;
+
+      try {
+        const fetchResponse = await fetch('/api/sqs-messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            queueUrl: selectedQueue.url,
+            messageBody: messageBody || undefined,
+            messageAttributes: messageAttributes || undefined,
+            delaySeconds: delaySeconds || undefined,
+          }),
+        });
+
+        if (!fetchResponse.ok) {
+          const response = await fetchResponse.json();
+          errorElement.innerText = response.error;
+          return;
+        }
+
+        const queueRow = document.getElementById(`queue-${selectedQueue.name}`);
+        queueRow.innerHTML = createTableRow({ ...selectedQueue, numberOfMessages: selectedQueue.numberOfMessages + 1 })
+        
+        originalQueues = originalQueues.map((e) => {
+          if (e.name === selectedQueue.name) {
+            return { ...selectedQueue, numberOfMessages: selectedQueue.numberOfMessages + 1 };
+          }
+
+          return e;
+        });
+
+        document.getElementById('send-message-modal-message-body-input').value = '';
+        document.getElementById('send-message-modal-message-attributes-input').value = '';
+        document.getElementById('send-message-modal-delay-seconds-input').value = '';
+
+        $('#send-message-modal').modal('hide');
+      } catch (error) {
+        errorElement.innerText = 'An unknown error occurred.'
+      }
+    }
+
+    // Purge queue
+    const openPurgeQueueModal = (queue) => {
+      selectedQueue = { ...queue };
+
+      const purgeQueueModalDescriptionElement = document.getElementById('purge-queue-modal-description');
+
+      purgeQueueModalDescriptionElement.innerHTML = `Are you sure you want to purge <b>${queue.name}</b>? This will delete all of its messages.`;
+
+      $('#purge-queue-modal').modal('show');
+    }
+
+    const onConfirmPurgeQueueClick = async () => {
+      const errorElement = document.getElementById('purge-queue-modal-error');
+
+      errorElement.innerText = '';
+
+      try {
+        const fetchResponse = await fetch(`/api/sqs-queues/${selectedQueue.name}/purge`, { method: 'PATCH' });
+
+        if (!fetchResponse.ok) {
+          const response = await fetchResponse.json();
+          errorElement.innerText = response.error;
+          return;
+        }
+
+        const queueRow = document.getElementById(`queue-${selectedQueue.name}`);
+        queueRow.innerHTML = createTableRow({ ...selectedQueue, numberOfMessages: 0 })
+        
+        originalQueues = originalQueues.map((e) => {
+          if (e.name === selectedQueue.name) {
+            return { ...selectedQueue, numberOfMessages: 0 };
+          }
+
+          return e;
+        });
+
+        $('#purge-queue-modal').modal('hide');
+      } catch (error) {
+        errorElement.innerText = 'An unknown error occurred.'
+      }
+    }
+
+    // Purge queue
+    const openDeleteQueueModal = (queue) => {
+      selectedQueue = { ...queue };
+
+      const descriptionElement = document.getElementById('delete-queue-modal-description');
+
+      descriptionElement.innerHTML = `Are you sure you want to delete <b>${queue.name}</b>? This will delete all of its messages and history.`;
+
+      $('#delete-queue-modal').modal('show');
+    }
+
+    const onConfirmDeleteQueueClick = async () => {
+      const errorElement = document.getElementById('delete-queue-modal-error');
+
+      errorElement.innerText = '';
+
+      try {
+        const fetchResponse = await fetch(`/api/sqs-queues/${selectedQueue.name}`, { method: 'DELETE' });
+
+        if (!fetchResponse.ok) {
+          const response = await fetchResponse.json();
+          errorElement.innerText = response.error;
+          return;
+        }
+
+        document.getElementById(`queue-${selectedQueue.name}`).remove();
+        
+        const tableBodyElement = document.getElementById('queues-table-body');
+
+        if (tableBodyElement.innerHTML.trim() === '') {
+          tableBodyElement.innerHTML = `
+            <tr>
+              <td class="center aligned" colspan="9">No queues.</td>
+            </tr>
+          `;
+        }
+        
+        originalQueues = originalQueues.filter(e => e.name !== selectedQueue.name)
+
+        $('#delete-queue-modal').modal('hide');
+      } catch (error) {
+        errorElement.innerText = 'An unknown error occurred.'
       }
     }
   </script>
