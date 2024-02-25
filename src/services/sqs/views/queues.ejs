@@ -51,10 +51,10 @@
                   <td data-label="Receive Message Wait Time"><%= queue.receiveMessageWaitTimeSeconds %> seconds</td>
                   <td data-label="Maximum Message Size"><%= queue.maximumMessageSize %> bytes</td>
                   <td data-label="Messages">
-                    <a href="/ui/sqs-messages?search=<%= queue.name %>"><%= queue.numberOfMessages %> messages</a>
+                    <a href="/ui/sqs-messages?search=<%= queue.url %>"><%= queue.numberOfMessages %> messages</a>
                   </td>
                   <td data-label="Message History">
-                    <a href="/ui/sqs-message-history?search=<%= queue.name %>"><%= queue.numberOfMessagesInHistory %> messages</a>
+                    <a href="/ui/sqs-message-history?search=<%= queue.url %>"><%= queue.numberOfMessagesInHistory %> messages</a>
                   </td>
                   <td data-label="Actions" class="center">
                     <div style="display: flex;">
@@ -73,9 +73,139 @@
         </table>
       </div>
     </div>
+
+    <div id="add-queue-modal" class="ui modal">
+      <div class="header">
+        Add Queue
+      </div>
+        <div class="content">
+          <form class="ui form" onsubmit="event.preventDefault();onAddTopicClick()">
+            <div class="field">
+              <label>Name</label>
+              <input type="text" name="name" id="add-queue-modal-name-input">
+            </div>
+            <div class="field">
+              <label>Visibility Timeout</label>
+              <input type="number" name="name" id="add-queue-modal-visbility-timeout-input">
+            </div>
+            <div class="field">
+              <label>Receive Message Wait Time in Seconds</label>
+              <input type="number" name="name" id="add-queue-modal-receive-message-wait-time-input">
+            </div>
+            <div class="field">
+              <label>Maximum Message Size in Bytes</label>
+              <input type="number" name="name" id="add-queue-modal-maximum-message-size-input">
+            </div>
+          </form>
+          <div class="ui form">
+            <div class="field error">
+              <label id="add-queue-modal-error"></label>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="ui button">Cancel</button>
+          <button class="ui button green" onclick="onAddQueueClick()">Add</button>
+        </div>
+    </div>
   </body>
 
   <script>
+    let originalQueues = <%- JSON.stringify(queues) %>
+
     $('.button').popup();
+
+    const createTableRow = (queue) => {
+      return `
+      <tr id="queue-${queue.name}">
+        <td data-label="Name">${queue.name}</td>
+        <td data-label="Url">${queue.url}</td>
+        <td data-label="Arn">${queue.arn}</td>
+        <td data-label="Visibility Timeout">${queue.visibilityTimeout}</td>
+        <td data-label="Receive Message Wait Time">${queue.receiveMessageWaitTimeSeconds}</td>
+        <td data-label="Maximum Message Size">${queue.maximumMessageSize}</td>
+        <td data-label="Messages">
+          <a href="/ui/sqs-messages?search=${queue.url}">${queue.numberOfMessages} messages</a>
+        </td>
+        <td data-label="Message History">
+          <a href="/ui/sqs-message-history?search=${queue.url}">${queue.numberOfMessagesInHistory} messages</a>
+        </td>
+        <td data-label="Actions" class="center">
+          <div style="display: flex;">
+          <button class="ui red icon button" data-content="Purge queue" data-position="top center" onClick='openPurgeQueueModal(${JSON.stringify(queue)})'>
+            <i class="fa-solid fa-ban"></i>
+          </button>
+          <button class="ui red icon button" data-content="Delete queue" data-position="top center" onClick='openDeleteQueueModal(${JSON.stringify(queue)})'>
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+        </td>
+      </tr>
+      `;
+    }
+
+    // Add queue
+    const openAddQueueModal = () => {
+      $('#add-queue-modal').modal('show');
+    }
+
+    const onAddQueueClick = async () => {
+      const errorElement = document.getElementById('add-queue-modal-error');
+      errorElement.innerText = '';
+
+      const name = document.getElementById('add-queue-modal-name-input').value;
+      const visibilityTimeout = document.getElementById('add-queue-modal-visbility-timeout-input').value;
+      const receiveMessageWaitTime = document.getElementById('add-queue-modal-receive-message-wait-time-input').value;
+      const maximumMessageSize = document.getElementById('add-queue-modal-maximum-message-size-input').value;
+
+      if (!name) {
+        errorElement.innerText = 'Name is required.'
+        return;
+      }
+
+      try {
+        const fetchResponse = await fetch('/api/sqs-queues', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            queueName: name,
+            visibilityTimeout: visibilityTimeout || undefined,
+            receiveMessageWaitTime: receiveMessageWaitTime || undefined,
+            maximumMessageSize: maximumMessageSize || undefined,
+          }),
+        });
+
+        if (!fetchResponse.ok) {
+          const response = await fetchResponse.json();
+          errorElement.innerText = response.error;
+          return;
+        }
+
+        const response = await fetchResponse.json();
+
+        const tableBodyElement = document.getElementById('queues-table-body');
+
+        if (tableBodyElement.innerHTML.includes('No queues')) {
+          tableBodyElement.innerHTML = createTableRow(response);
+        } else {
+          tableBodyElement.innerHTML += createTableRow(response);
+        }
+
+        document.getElementById('add-queue-modal-name-input').value = '';
+        document.getElementById('add-queue-modal-visbility-timeout-input').value = '';
+        document.getElementById('add-queue-modal-receive-message-wait-time-input').value = '';
+        document.getElementById('add-queue-modal-maximum-message-size-input').value = '';
+
+        originalQueues.push(response);
+
+        $('#add-queue-modal').modal('hide');
+        $('.button').popup();
+      } catch (error) {
+        console.error(error);
+        errorElement.innerText = 'An unknown error occurred.';
+      }
+    }
   </script>
 </html>

@@ -52,6 +52,7 @@ app.use(mockRouter);
 app.use(snsRouters.api);
 app.use(snsRouters.ui);
 
+app.use(sqsRouters.api);
 app.use(sqsRouters.ui);
 
 app.use(errorMiddleware);
