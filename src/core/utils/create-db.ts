@@ -17,6 +17,11 @@ type Db<T> = {
   create: (value: T) => T;
   getAllByKeyValue: ({ key, value }: KeyValuePairs<T>) => T[] | null;
   getFirstByKeyValue: ({ key, value }: KeyValuePairs<T>) => T | null;
+  updateFirstByKeyValue: ({
+    key,
+    value,
+    data,
+  }: KeyValuePairs<T> & { data: Partial<T> }) => T | null;
   deleteByKeyValue: ({ key, value }: KeyValuePairs<T>) => number;
   deleteAll: () => number;
 };
@@ -93,6 +98,36 @@ export const createDb = <T>({ name, initialData }: CreateDbOptions<T>): Db<T> =>
       }
 
       return foundRecord;
+    },
+    updateFirstByKeyValue: ({ key, value, data }) => {
+      if (!existsSync(dbPath)) {
+        return null;
+      }
+
+      const records = readFromJsonFile<T>(dbPath);
+
+      if (!records) {
+        return null;
+      }
+
+      const foundRecord = records.find((e) => e[key] === value);
+
+      if (!foundRecord) {
+        return null;
+      }
+
+      const updatedRecord = { ...foundRecord, ...data };
+
+      const updatedRecords = records.map((e) => {
+        if (e[key] === value) {
+          return { ...updatedRecord };
+        }
+
+        return { ...e };
+      });
+
+      writeToJsonFile({ path: dbPath, records: updatedRecords });
+      return { ...updatedRecord };
     },
     create: (value: T) => {
       if (!existsSync(dbPath)) {
