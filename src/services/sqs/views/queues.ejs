@@ -427,5 +427,49 @@
         errorElement.innerText = 'An unknown error occurred.'
       }
     }
+
+    // Search
+    const rerenderTable = (queues) => {
+      const table = document.getElementById('queues-table-body');
+
+      if (queues.length <= 0) {
+        table.innerHTML = `
+          <tr>
+            <td class="center aligned" colspan="9">No queues.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = queues.map(e => createTableRow(e)).join('')
+    }
+
+    document.getElementById('search-input').addEventListener('keyup', (e) => {
+      if (!e.target.value) {
+        changeSearchInUrl('');
+        rerenderTable(originalQueues);
+        return;
+      }
+
+      changeSearchInUrl(e.target.value.toLowerCase());
+      const filteredQueues = originalQueues.filter(queue =>
+        queue.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
+        queue.url.toLowerCase().includes(e.target.value.toLowerCase()) ||
+        queue.arn.toLowerCase().includes(e.target.value.toLowerCase())
+      );
+      rerenderTable(filteredQueues);
+    })
+
+    const initialSearch = getSearchFromUrl();
+
+    if (initialSearch) {
+      document.getElementById('search-input').value = initialSearch;
+      const filteredQueues = originalQueues.filter(queue =>
+        queue.name.toLowerCase().includes(initialSearch.toLowerCase()) ||
+        queue.url.toLowerCase().includes(initialSearch.toLowerCase()) ||
+        queue.arn.toLowerCase().includes(initialSearch.toLowerCase())
+      );
+      rerenderTable(filteredQueues);
+    }
   </script>
 </html>
