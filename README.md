@@ -6,7 +6,7 @@
 
 ![Dashboard Preview](./assets/dashboard-preview.png)
 
-Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services locally. It features a Docker image and a user-friendly UI for managing the mock. Currently, it supports a subset of SNS services. You can view the [feature coverage here](#feature-coverage).
+Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services locally. It features a Docker image and a user-friendly UI for managing the mock. Currently, it supports a subset of SNS & SQS services. You can view the [feature coverage here](#feature-coverage).
 
 ## Table of Contents
 
@@ -184,6 +184,18 @@ Example `sns-topic.json`:
 | [DeleteTopic](https://docs.aws.amazon.com/sns/latest/api/API_DeleteTopic.html) | :white_check_mark: | :white_check_mark: | UI for deleting a topic.                                           |
 | [ListTopics](https://docs.aws.amazon.com/sns/latest/api/API_ListTopics.html)   | :white_check_mark: | :white_check_mark: | UI that display list of all topics.                                |
 | [Publish](https://docs.aws.amazon.com/sns/latest/api/API_Publish.html)         | :yellow_square:    | :yellow_square:    | UI for viewing publish history and purging it. Logs received data. |
+
+### SQS
+
+| Operation                                                                                                       | Mock Support       | Dashboard Support  | Comment                                                                |
+| --------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------ | ---------------------------------------------------------------------- |
+| [CreateQueue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html)       | :white_check_mark: | :white_check_mark: | UI for adding new queue.                                               |
+| [DeleteQueue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_DeleteQueue.html)       | :white_check_mark: | :white_check_mark: | UI for deleting a queue.                                               |
+| [GetQueueUrl](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_GetQueueUrl.html)       | :white_check_mark: | :white_check_mark: | Shows queue url in queue list.                                         |
+| [ListQueues](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_ListQueues.html)         | :white_check_mark: | :white_check_mark: | UI that displays list of all queues. Also has option to purge a queue. |
+| [SendMessage](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html)       | :white_check_mark: | :white_check_mark: | Can also sends message from queue list in UI.                          |
+| [ReceiveMessage](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_ReceiveMessage.html) | :white_check_mark: | :white_check_mark: |                                                                        |
+| [DeleteMessage](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_DeleteMessage.html)   | :white_check_mark: | :white_check_mark: | UI that displays list of all deleted messages (message history).       |
 
 ## Local Development
 
