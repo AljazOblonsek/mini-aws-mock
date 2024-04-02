@@ -1,9 +1,8 @@
 {
-  "typescript.preferences.quoteStyle": "single",
-  "editor.formatOnSave": true,
-  "files.eol": "\n",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[markdown]": {
-    "editor.wordWrap": "off"
-  }
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "prettier.singleQuote": true,
+  "files.eol": "\n",
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

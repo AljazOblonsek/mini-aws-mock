@@ -53,6 +53,7 @@ docker run \
     -e AWS_USER_ID='00000000' \
     -e AWS_ACCESS_KEY=mock-access-key \
     -e AWS_SECRET_KEY=mock-secret-key \
+    -p 3000:3000 \
     -p 8000:8000 \
     aljazo/mini-aws-mock:latest
 ```
@@ -71,7 +72,7 @@ aws --endpoint http://localhost:8000 sns publish --topic-arn "arn:aws:sns:us-eas
 
 ### Accessing the Web Dashboard
 
-- Access the dashboard at [http://localhost:8000/ui](http://localhost:8000/ui).
+- Access the dashboard at [http://localhost:3000](http://localhost:3000).
 
 _Hint: The dashboard updates in real-time when you publish to SNS._
 
@@ -89,6 +90,7 @@ docker run \
     -e AWS_USER_ID='00000000' \
     -e AWS_ACCESS_KEY=mock-access-key \
     -e AWS_SECRET_KEY=mock-secret-key \
+    -p 3000:3000 \
     -p 8000:8000 \
     aljazo/mini-aws-mock:latest
 ```
@@ -105,6 +107,7 @@ services:
       AWS_ACCESS_KEY: mock-access-key
       AWS_SECRET_KEY: mock-secret-key
     ports:
+      - '3000:3000'
       - '8000:8000'
 ```
 
@@ -121,7 +124,7 @@ Configure the container using the following environment variables:
 
 ### Persistence and Initial Data
 
-Persist data between restarts by binding a local folder to `/app/data` in Docker:
+Persist data between restarts by binding a local folder to `/app/packages/api/data` in Docker:
 
 ```yml
 services:
@@ -133,8 +136,9 @@ services:
       AWS_ACCESS_KEY: mock-access-key
       AWS_SECRET_KEY: mock-secret-key
     volumes:
-      - ./my-local-data:/app/data:rw
+      - ./my-local-data:/app/packages/api/data:rw
     ports:
+      - '3000:3000'
       - '8000:8000'
 ```
 
@@ -150,12 +154,13 @@ services:
       AWS_ACCESS_KEY: mock-access-key
       AWS_SECRET_KEY: mock-secret-key
     volumes:
-      - ./my-local-init-data:/app/initial-data:ro
+      - ./my-local-init-data:/app/packages/api/initial-data:ro
     ports:
+      - '3000:3000'
       - '8000:8000'
 ```
 
-_Note: Both persistence and initial data volumes can be mounted. Initial data is processed only when the databases are first created._
+_Note: Both persistence and initial data volumes can be mounted. Initial data is processed only when the table is empty._
 
 ### Initial Data Files and Schemas
 
@@ -170,6 +175,21 @@ Example `sns-topic.json`:
   {
     "name": "another-topic",
     "arn": "arn:aws:sns:us-east-1:00000000:another-topic"
+  }
+]
+```
+
+Example `sqs-queue.json`:
+
+```json
+[
+  {
+    "name": "my-queue",
+    "arn": "arn:aws:sqs:us-east-1:00000000:my-queue",
+    "url": "http://sqs.us-east-1.localhost:8000/00000000/my-queue",
+    "visibilityTimeout": 30,
+    "receiveMessageWaitTimeSeconds": 0,
+    "maximumMessageSize": 262144
   }
 ]
 ```
@@ -202,21 +222,22 @@ Example `sns-topic.json`:
 <h3 id="local-development-prerequisites">Prerequisites</h3>
 
 - [Node v18.17.1](https://nodejs.org/download/release/v18.17.1/)
+- [Pnpm v8.15.4](https://pnpm.io/installation#using-npm)
 
 ### Setup & Run
 
-1. Create an .env file (refer to [.env.example](./.env.example) for values).
+1. Create an .env file in the `/packages/api` folder (refer to [.env.example](./packages/api/.env.example) for values).
 
 2. Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 3. Start the mock in development mode:
 
 ```bash
-npm run start:dev
+pnpm run dev
 ```
 
 You are now ready to develop the mock.
@@ -226,13 +247,17 @@ You are now ready to develop the mock.
 - Run both unit and e2e tests:
 
 ```bash
-npm run test
+# Unit
+pnpm --filter @mini-aws-mock/api run test:unit
+
+# E2E
+pnpm --filter @mini-aws-mock/api run test:e2e
 ```
 
 - Generate test coverage:
 
 ```bash
-npm run test:cov
+pnpm --filter @mini-aws-mock/api run test:cov
 ```
 
 ## Contributing

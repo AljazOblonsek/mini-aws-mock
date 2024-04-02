@@ -1,0 +1,18 @@
+{
+  "name": "@mini-aws-mock/shared",
+  "main": "./src/index.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc --build",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:folders": "folderslint",
+    "test:unit": "jest --config ./configs/jest-unit.json --passWithNoTests",
+    "test:unit-watch": "jest --config ./configs/jest-unit.json --watch",
+    "test:cov": "jest --config ./configs/jest-unit.json --coverage"
+  },
+  "dependencies": {
+    "@nestjs/swagger": "^7.1.10",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0"
+  }
+}

@@ -2,11 +2,8 @@
 .vscode/
 assets/
 coverage/
-data/
-data-test/
-dist/
-initial-data/
-node_modules/
+**/dist
+**/node_modules
 tests/
 *.env
 .gitignore

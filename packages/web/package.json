@@ -1,0 +1,36 @@
+{
+  "name": "@mini-aws-mock/web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start:dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint --config ./.eslintrc.cjs src/**/*.ts",
+    "lint:folders": "folderslint",
+    "start:prod": "serve --single dist -p 3000 --no-request-logging"
+  },
+  "dependencies": {
+    "@mini-aws-mock/shared": "workspace:*",
+    "@solidjs/router": "^0.12.4",
+    "@suid/icons-material": "^0.6.11",
+    "@suid/material": "^0.15.1",
+    "@tanstack/solid-query": "^5.28.5",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "reflect-metadata": "^0.2.0",
+    "serve": "^14.2.1",
+    "solid-js": "^1.8.15",
+    "solid-toast": "^0.5.0"
+  },
+  "devDependencies": {
+    "@suid/vite-plugin": "^0.1.5",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-plugin-solid": "^0.13.1",
+    "vite": "^5.1.4",
+    "vite-plugin-solid": "^2.10.1",
+    "vite-tsconfig-paths": "^4.3.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "../src",
+  "testRegex": ".*\\.test\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "coverageReporters": ["json", "html"],
+  "coverageDirectory": "../coverage",
+  "coveragePathIgnorePatterns": [".test.ts$"],
+  "testEnvironment": "node",
+  "testTimeout": 15000
+}

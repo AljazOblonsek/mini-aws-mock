@@ -1,0 +1,18 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "../src",
+  "testRegex": ".*\\.spec\\.ts$",
+  "testPathIgnorePatterns": ["/node_modules/"],
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "coverageReporters": ["json"],
+  "coverageDirectory": "../coverage/unit",
+  "coveragePathIgnorePatterns": [".module.ts$", ".spec.ts$", "main.ts", "init-app.ts"],
+  "testEnvironment": "node",
+  "testTimeout": 15000,
+  "moduleNameMapper": {
+    "@/src/(.*)": "<rootDir>/../src/$1",
+    "@/test/(.*)": "<rootDir>/../test/$1"
+  }
+}

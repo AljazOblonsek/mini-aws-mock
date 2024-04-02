@@ -1,0 +1,8 @@
+{
+  "root": "src",
+  "rules": [
+    "common/**",
+    "config/**",
+    "modules/**"
+  ]
+}

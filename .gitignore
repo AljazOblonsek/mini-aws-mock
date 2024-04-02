@@ -23,6 +23,7 @@ lerna-debug.log*
 
 # env files
 .env
+env.js
 
 # tests
 coverage/
@@ -30,6 +31,8 @@ coverage/
 
 # docker
 volumes/
+my-local-data/
+my-local-init-data/
 
 # nextjs
 .next/
@@ -42,7 +45,5 @@ next-env.d.ts
 /.pnp
 .pnp.js
 
-# local datastore
-data/
-data-test/
-initial-data/
+# db
+packages/api/data/
