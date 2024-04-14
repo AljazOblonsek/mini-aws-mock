@@ -29,7 +29,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-plugin-solid": "^0.13.1",
-    "vite": "^5.1.4",
+    "vite": "^5.1.7",
     "vite-plugin-solid": "^2.10.1",
     "vite-tsconfig-paths": "^4.3.1"
   }
