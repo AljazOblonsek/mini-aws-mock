@@ -3,9 +3,9 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { json } from 'express';
-import { Client } from '@smithy/smithy-client';
+import { Client } from '@smithy/types';
 
-type ClientAny = Client<any, any, any, any>;
+type ClientAny = Client<any, any, any>;
 
 type Newable<T> = { new (...args: any[]): T };
 
