@@ -14,6 +14,7 @@ import {
   Inbox as InboxIcon,
   Restore as RestoreIcon,
   Message as MessageIcon,
+  Key as KeyIcon,
 } from '@suid/icons-material';
 import { JSXElement } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
@@ -111,6 +112,12 @@ export const Sidebar = () => {
             title="Message History"
             onClick={() => navigate('/sqs/message-history')}
           />
+          <Divider />
+
+          <ListItem sx={{ paddingBottom: 0 }}>
+            <Typography fontWeight="500">KMS</Typography>
+          </ListItem>
+          <SidebarListItem icon={<KeyIcon />} title="Keys" onClick={() => navigate('/kms/keys')} />
           <Divider />
         </List>
       </Drawer>
