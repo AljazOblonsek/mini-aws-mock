@@ -1,0 +1,33 @@
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { KmsOrigin } from '../enums/kms-origin.enum';
+import { KeySpec, KeyUsage } from '@mini-aws-mock/shared';
+
+@Table
+export class KmsKey extends Model {
+  @Column({ primaryKey: true })
+  id: string;
+
+  @Column({ unique: true })
+  arn: string;
+
+  @Column({ unique: true })
+  alias: string;
+
+  @Column
+  description?: string;
+
+  @Column
+  createdAt: Date;
+
+  @Column
+  multiRegion: boolean;
+
+  @Column({ type: DataType.ENUM(...Object.values(KmsOrigin)) })
+  origin: KmsOrigin;
+
+  @Column({ type: DataType.ENUM(...Object.values(KeySpec)) })
+  keySpec: KeySpec;
+
+  @Column({ type: DataType.ENUM(...Object.values(KeyUsage)) })
+  keyUsage: KeyUsage;
+}

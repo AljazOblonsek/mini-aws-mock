@@ -1,3 +1,5 @@
+export { KmsKeyCreateRequestDto } from './kms-key-create-request.dto';
+export { KmsKeyDto } from './kms-key.dto';
 export { MessageAttributeRequestDto } from './message-attribute-request.dto';
 export { SnsTopicPublishHistoryDto } from './sns-topic-publish-history.dto';
 export { SnsTopicCreateRequestDto } from './sns-topic-create-request.dto';
