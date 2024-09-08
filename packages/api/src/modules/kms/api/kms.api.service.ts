@@ -27,12 +27,15 @@ import {
   MAX_CIPHERTEXT_BLOB_SIZE_IN_BYTES,
   MAX_PLAINTEXT_SIZE_IN_BYTES,
 } from '../constants/encryption.constants';
+import { KmsEncryptionHistory } from '../entities/kms-encryption-history.entity';
 
 @Injectable()
 export class KmsApiService {
   constructor(
     private readonly configService: ConfigService,
-    @InjectModel(KmsKey) private readonly kmsKeyModel: typeof KmsKey
+    @InjectModel(KmsKey) private readonly kmsKeyModel: typeof KmsKey,
+    @InjectModel(KmsEncryptionHistory)
+    private readonly kmsEncryptionHistoryModel: typeof KmsEncryptionHistory
   ) {}
 
   async getKeys(): Promise<KmsKeyDto[]> {

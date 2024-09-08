@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import { KmsKey } from '../entities/kms-key.entity';
 import { AwsActionOptions, ValidationErrorException } from '@/src/common/mock';
@@ -19,14 +18,16 @@ import { extractKeyIdFromCiphertextBlob } from '../utils/extract-key-id-from-cip
 import { KeyAccessDeniedException } from './exceptions/key-access-denied.exception';
 import { decrypt } from '../utils/decrypt';
 import { getDecryptJsonResponse } from './responses/get-decrypt-response';
+import { KmsEncryptionHistory } from '../entities/kms-encryption-history.entity';
 
 @Injectable()
 export class KmsMockService {
   private readonly logger: Logger;
 
   constructor(
-    private readonly configService: ConfigService,
-    @InjectModel(KmsKey) private readonly kmsKeyModel: typeof KmsKey
+    @InjectModel(KmsKey) private readonly kmsKeyModel: typeof KmsKey,
+    @InjectModel(KmsEncryptionHistory)
+    private readonly kmsEncryptionHistoryModel: typeof KmsEncryptionHistory
   ) {
     this.logger = new Logger(this.constructor.name);
   }

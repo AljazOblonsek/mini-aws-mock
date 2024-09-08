@@ -1,6 +1,7 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { KmsOrigin } from '../enums/kms-origin.enum';
 import { KeySpec, KeyUsage } from '@mini-aws-mock/shared';
+import { KmsEncryptionHistory } from './kms-encryption-history.entity';
 
 @Table
 export class KmsKey extends Model {
@@ -39,4 +40,7 @@ export class KmsKey extends Model {
 
   @Column({ type: DataType.ENUM(...Object.values(KeyUsage)) })
   keyUsage: KeyUsage;
+
+  @HasMany(() => KmsEncryptionHistory)
+  encryptionHistory: KmsEncryptionHistory[];
 }
