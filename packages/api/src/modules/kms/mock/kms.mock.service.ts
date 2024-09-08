@@ -19,13 +19,15 @@ import { KeyAccessDeniedException } from './exceptions/key-access-denied.excepti
 import { decrypt } from '../utils/decrypt';
 import { getDecryptJsonResponse } from './responses/get-decrypt-response';
 import { KmsEncryptionHistory } from '../entities/kms-encryption-history.entity';
-import { EncryptionAction, EncryptionKind } from '@mini-aws-mock/shared';
+import { EncryptionAction, EncryptionKind, SseNotificationType } from '@mini-aws-mock/shared';
+import { SseService } from '@/src/common/core';
 
 @Injectable()
 export class KmsMockService {
   private readonly logger: Logger;
 
   constructor(
+    private readonly sseService: SseService,
     @InjectModel(KmsKey) private readonly kmsKeyModel: typeof KmsKey,
     @InjectModel(KmsEncryptionHistory)
     private readonly kmsEncryptionHistoryModel: typeof KmsEncryptionHistory
@@ -70,13 +72,26 @@ export class KmsMockService {
       plaintextBlob,
     });
 
-    await this.kmsEncryptionHistoryModel.create({
+    const encryptionHistoryRecord = await this.kmsEncryptionHistoryModel.create({
       encryptionAction: EncryptionAction.Encrypt,
       encryptionKind: EncryptionKind.AwsSdk,
       input: dto.Plaintext,
       output: encrypted.toString('base64'),
       createdAt: new Date(),
       keyId: key.id,
+    });
+
+    this.sseService.sendNotification({
+      type: SseNotificationType.KmsEncryption,
+      payload: {
+        encryptionAction: encryptionHistoryRecord.encryptionAction,
+        encryptionKind: encryptionHistoryRecord.encryptionKind,
+        input: encryptionHistoryRecord.input,
+        output: encryptionHistoryRecord.output,
+        createdAt: encryptionHistoryRecord.createdAt,
+        keyId: key.id,
+        keyAlias: key.alias,
+      },
     });
 
     this.logger.log('[KMS] 200 - Encrypt.');
@@ -123,13 +138,26 @@ export class KmsMockService {
       encryptionKey: key.encryptionKey,
     });
 
-    await this.kmsEncryptionHistoryModel.create({
+    const encryptionHistoryRecord = await this.kmsEncryptionHistoryModel.create({
       encryptionAction: EncryptionAction.Decrypt,
       encryptionKind: EncryptionKind.AwsSdk,
       input: dto.CiphertextBlob,
       output: decrypted.toString('base64'),
       createdAt: new Date(),
       keyId: key.id,
+    });
+
+    this.sseService.sendNotification({
+      type: SseNotificationType.KmsEncryption,
+      payload: {
+        encryptionAction: encryptionHistoryRecord.encryptionAction,
+        encryptionKind: encryptionHistoryRecord.encryptionKind,
+        input: encryptionHistoryRecord.input,
+        output: encryptionHistoryRecord.output,
+        createdAt: encryptionHistoryRecord.createdAt,
+        keyId: key.id,
+        keyAlias: key.alias,
+      },
     });
 
     this.logger.log('[KMS] 200 - Decrypt.');

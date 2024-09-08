@@ -19,6 +19,10 @@ export const SseHandler = () => {
           queryClient.invalidateQueries({ queryKey: ['messages'] });
           queryClient.invalidateQueries({ queryKey: ['message-history'] });
           break;
+        case SseNotificationType.KmsEncryption:
+          queryClient.invalidateQueries({ queryKey: ['keys'] });
+          queryClient.invalidateQueries({ queryKey: ['encryption-history'] });
+          break;
         default:
           break;
       }
