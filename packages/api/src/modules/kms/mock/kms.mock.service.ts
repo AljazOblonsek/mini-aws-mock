@@ -19,6 +19,7 @@ import { KeyAccessDeniedException } from './exceptions/key-access-denied.excepti
 import { decrypt } from '../utils/decrypt';
 import { getDecryptJsonResponse } from './responses/get-decrypt-response';
 import { KmsEncryptionHistory } from '../entities/kms-encryption-history.entity';
+import { EncryptionAction, EncryptionKind } from '@mini-aws-mock/shared';
 
 @Injectable()
 export class KmsMockService {
@@ -69,6 +70,15 @@ export class KmsMockService {
       plaintextBlob,
     });
 
+    await this.kmsEncryptionHistoryModel.create({
+      encryptionAction: EncryptionAction.Encrypt,
+      encryptionKind: EncryptionKind.AwsSdk,
+      input: dto.Plaintext,
+      output: encrypted.toString('base64'),
+      createdAt: new Date(),
+      keyId: key.id,
+    });
+
     this.logger.log('[KMS] 200 - Encrypt.');
 
     return getEncryptJsonResponse({
@@ -111,6 +121,15 @@ export class KmsMockService {
     const decrypted = decrypt({
       ciphertextBlob,
       encryptionKey: key.encryptionKey,
+    });
+
+    await this.kmsEncryptionHistoryModel.create({
+      encryptionAction: EncryptionAction.Decrypt,
+      encryptionKind: EncryptionKind.AwsSdk,
+      input: dto.CiphertextBlob,
+      output: decrypted.toString('base64'),
+      createdAt: new Date(),
+      keyId: key.id,
     });
 
     this.logger.log('[KMS] 200 - Decrypt.');
