@@ -26,6 +26,9 @@ export class KmsKey extends Model {
   createdAt: Date;
 
   @Column
+  enabled: boolean;
+
+  @Column
   multiRegion: boolean;
 
   @Column({ type: DataType.ENUM(...Object.values(KmsOrigin)) })

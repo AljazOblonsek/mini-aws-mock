@@ -66,6 +66,7 @@ export class KmsApiService {
       encryptionKey: randomBytes(32).toString('hex'),
       description: dto.description,
       createAt: new Date(),
+      enabled: true,
       multiRegion: false,
       origin: KmsOrigin.AwsKms,
       keySpec: KeySpec.SymmetricDefault,
