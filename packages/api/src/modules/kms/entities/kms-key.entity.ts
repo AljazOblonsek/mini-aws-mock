@@ -13,6 +13,12 @@ export class KmsKey extends Model {
   @Column({ unique: true })
   alias: string;
 
+  /**
+   * Represents 256-bit encryption key as hex string.
+   */
+  @Column
+  encryptionKey: string;
+
   @Column
   description?: string;
 

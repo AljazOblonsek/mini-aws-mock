@@ -2,10 +2,22 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/sequelize';
 import { ConfigService } from '@nestjs/config';
 import { KmsKey } from '../entities/kms-key.entity';
-import { KeySpec, KeyUsage, KmsKeyCreateRequestDto, KmsKeyDto } from '@mini-aws-mock/shared';
-import { randomUUID } from 'crypto';
+import {
+  KeySpec,
+  KeyUsage,
+  KmsDecryptRequestDto,
+  KmsDecryptResponseDto,
+  KmsEncryptRequestDto,
+  KmsEncryptResponseDto,
+  KmsKeyCreateRequestDto,
+  KmsKeyDto,
+} from '@mini-aws-mock/shared';
+import { randomBytes, randomUUID } from 'crypto';
 import { generateKeyArn } from '../utils/generate-key-arn';
 import { KmsOrigin } from '../enums/kms-origin.enum';
+import { encrypt } from '../utils/encrypt';
+import { extractKeyIdFromCiphertextBlob } from '../utils/extract-key-id-from-ciphertext';
+import { decrypt } from '../utils/decrypt';
 
 @Injectable()
 export class KmsApiService {
@@ -51,6 +63,7 @@ export class KmsApiService {
         keyId: newKeyId,
       }),
       alias: dto.alias,
+      encryptionKey: randomBytes(32).toString('hex'),
       description: dto.description,
       createAt: new Date(),
       multiRegion: false,
@@ -78,5 +91,42 @@ export class KmsApiService {
     }
 
     await existingKey.destroy();
+  }
+
+  async encrypt(dto: KmsEncryptRequestDto): Promise<KmsEncryptResponseDto> {
+    const key = await this.getKeyById(dto.keyId);
+
+    const encrypted = encrypt({
+      keyId: dto.keyId,
+      encryptionKey: key.encryptionKey,
+      plaintextBlob: Buffer.from(dto.content),
+    });
+
+    return {
+      content: encrypted.toString('base64'),
+    };
+  }
+
+  async decrypt(dto: KmsDecryptRequestDto): Promise<KmsDecryptResponseDto> {
+    const ciphertextBlob = Buffer.from(dto.content, 'base64');
+    const keyId = extractKeyIdFromCiphertextBlob({ ciphertextBlob });
+
+    const key = await this.getKeyById(keyId);
+
+    const decrypted = decrypt({ ciphertextBlob, encryptionKey: key.encryptionKey });
+
+    return {
+      content: decrypted.toString(),
+    };
+  }
+
+  private async getKeyById(id: string): Promise<KmsKey> {
+    const key = await this.kmsKeyModel.findOne({ where: { id } });
+
+    if (!key) {
+      throw new NotFoundException('Key not found.');
+    }
+
+    return key;
   }
 }
