@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ConfigService } from '@nestjs/config';
 import { KmsKey } from '../entities/kms-key.entity';
@@ -18,6 +23,10 @@ import { KmsOrigin } from '../enums/kms-origin.enum';
 import { encrypt } from '../utils/encrypt';
 import { extractKeyIdFromCiphertextBlob } from '../utils/extract-key-id-from-ciphertext';
 import { decrypt } from '../utils/decrypt';
+import {
+  MAX_CIPHERTEXT_BLOB_SIZE_IN_BYTES,
+  MAX_PLAINTEXT_SIZE_IN_BYTES,
+} from '../constants/encryption.constants';
 
 @Injectable()
 export class KmsApiService {
@@ -97,10 +106,20 @@ export class KmsApiService {
   async encrypt(dto: KmsEncryptRequestDto): Promise<KmsEncryptResponseDto> {
     const key = await this.getKeyById(dto.keyId);
 
+    if (!key.enabled) {
+      throw new ForbiddenException('Key is disabled.');
+    }
+
+    const plaintextBlob = Buffer.from(dto.content);
+
+    if (plaintextBlob.length > MAX_PLAINTEXT_SIZE_IN_BYTES) {
+      throw new BadRequestException('Content is too big.');
+    }
+
     const encrypted = encrypt({
       keyId: dto.keyId,
       encryptionKey: key.encryptionKey,
-      plaintextBlob: Buffer.from(dto.content),
+      plaintextBlob,
     });
 
     return {
@@ -112,7 +131,19 @@ export class KmsApiService {
     const ciphertextBlob = Buffer.from(dto.content, 'base64');
     const keyId = extractKeyIdFromCiphertextBlob({ ciphertextBlob });
 
+    if (!keyId) {
+      throw new BadRequestException('Could not find keyId from content blob.');
+    }
+
     const key = await this.getKeyById(keyId);
+
+    if (!key.enabled) {
+      throw new ForbiddenException('Key is disabled.');
+    }
+
+    if (ciphertextBlob.length > MAX_CIPHERTEXT_BLOB_SIZE_IN_BYTES) {
+      throw new BadRequestException('Content is too big.');
+    }
 
     const decrypted = decrypt({ ciphertextBlob, encryptionKey: key.encryptionKey });
 
