@@ -17,6 +17,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { SqsMockService } from '../sqs/mock/sqs.mock.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { KmsMockService } from '../kms/mock/kms.mock.service';
 
 @ApiTags('AWS Mock')
 @Controller()
@@ -27,13 +28,15 @@ export class MockController {
   constructor(
     private readonly configService: ConfigService,
     snsMockService: SnsMockService,
-    sqsMockService: SqsMockService
+    sqsMockService: SqsMockService,
+    kmsMockService: KmsMockService
   ) {
     this.logger = new Logger(this.constructor.name);
 
     this.actionsMap = {
       sns: { ...snsMockService.getActionsMap() },
       sqs: { ...sqsMockService.getActionsMap() },
+      kms: { ...kmsMockService.getActionsMap() },
     };
   }
 
