@@ -1,4 +1,4 @@
-import { Box, Button, Typography, TextField, IconButton } from '@suid/material';
+import { Box, Button, Typography, TextField, IconButton, Link } from '@suid/material';
 import {
   Delete as DeleteIcon,
   Lock as LockIcon,
@@ -6,7 +6,7 @@ import {
 } from '@suid/icons-material';
 import { For, Match, Switch, createSignal } from 'solid-js';
 import { KmsKeyDto } from '@mini-aws-mock/shared';
-import { useSearchParams } from '@solidjs/router';
+import { A, useSearchParams } from '@solidjs/router';
 import { Table, useConfirmDialog } from '@/common';
 import { useKeysQuery } from '../hooks/use-keys-query';
 import { useDeleteKeyMutation } from '../hooks/use-delete-key-mutation';
@@ -82,6 +82,7 @@ export const KeysPage = () => {
                 <Table.Cell>Key Id</Table.Cell>
                 <Table.Cell>Key Spec</Table.Cell>
                 <Table.Cell>Key Usage</Table.Cell>
+                <Table.Cell>Usage History</Table.Cell>
                 <Table.Cell>Actions</Table.Cell>
               </Table.Row>
             </Table.Head>
@@ -102,6 +103,16 @@ export const KeysPage = () => {
                         <Table.Cell>{key.id}</Table.Cell>
                         <Table.Cell>{key.keySpec}</Table.Cell>
                         <Table.Cell>{key.keyUsage}</Table.Cell>
+                        <Table.Cell>
+                          <Link
+                            href={`/kms/encryption-history?search=${encodeURIComponent(key.id)}`}
+                            component={A}
+                          >
+                            {key.encryptionHistoryLength === 1
+                              ? `${key.encryptionHistoryLength} usage`
+                              : `${key.encryptionHistoryLength} usages`}
+                          </Link>
+                        </Table.Cell>
                         <Table.Cell>
                           <IconButton
                             color="primary"
