@@ -12,6 +12,7 @@ import { readFile, readdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { SqsQueue } from './modules/sqs/entities/sqs-queue.entity';
+import { KmsKey } from './modules/kms/entities/kms-key.entity';
 
 const initSwagger = (app: INestApplication): void => {
   const config = new DocumentBuilder()
@@ -34,6 +35,7 @@ const seedDb = async (app: INestApplication): Promise<void> => {
   const FILE_TO_ENTITY_MAP: Record<string, typeof Model> = {
     'sns-topic.json': SnsTopic,
     'sqs-queue.json': SqsQueue,
+    'kms-key.json': KmsKey,
   };
 
   const configService = app.get(ConfigService);

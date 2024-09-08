@@ -46,4 +46,5 @@ next-env.d.ts
 .pnp.js
 
 # db
+packages/api/initial-data/
 packages/api/data/
