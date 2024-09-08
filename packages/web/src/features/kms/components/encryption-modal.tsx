@@ -31,6 +31,7 @@ export const EncryptionModal = (props: EncryptionModalProps) => {
   const decryptMutation = useDecryptMutation();
 
   const handleContentChange = async (value: string) => {
+    setErrors([]);
     setContent(value);
 
     if (!value) {
