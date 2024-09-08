@@ -2,6 +2,7 @@ import { Route, Router, Navigate } from '@solidjs/router';
 import { Layout } from './layouts/layout';
 import { PublishHistoryPage, TopicsPage } from '@/features/sns';
 import { MessageHistoryPage, MessagesPage, QueuesPage } from '@/features/sqs';
+import { EncryptionHistoryPage, KeysPage } from '@/features/kms';
 
 export const MainRouter = () => (
   <Router root={Layout}>
@@ -11,5 +12,7 @@ export const MainRouter = () => (
     <Route path="/sqs/queues" component={QueuesPage} />
     <Route path="/sqs/messages" component={MessagesPage} />
     <Route path="/sqs/message-history" component={MessageHistoryPage} />
+    <Route path="/kms/keys" component={KeysPage} />
+    <Route path="/kms/encryption-history" component={EncryptionHistoryPage} />
   </Router>
 );

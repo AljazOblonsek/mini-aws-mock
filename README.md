@@ -6,7 +6,7 @@
 
 ![Dashboard Preview](./assets/dashboard-preview.png)
 
-Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services locally. It features a Docker image and a user-friendly UI for managing the mock. Currently, it supports a subset of SNS & SQS services. You can view the [feature coverage here](#feature-coverage).
+Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services locally. It features a Docker image and a user-friendly UI for managing the mock. Currently, it supports a subset of SNS, SQS & KMS services. You can view the [feature coverage here](#feature-coverage).
 
 ## Table of Contents
 
@@ -23,6 +23,8 @@ Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services
   - [Initial Data Files and Schemas](#initial-data-files-and-schemas)
 - [Feature Coverage](#feature-coverage)
   - [SNS](#sns)
+  - [SQS](#sqs)
+  - [KMS](#kms)
 - [Local Development](#local-development)
   - [Prerequisites](#local-development-prerequisites)
   - [Setup & Run](#setup--run)
@@ -194,6 +196,24 @@ Example `sqs-queue.json`:
 ]
 ```
 
+Example `kms-key.json`:
+
+```json
+[
+  {
+    "id": "a1c6858d-a353-465a-93b8-6dbfa2530e1a",
+    "arn": "arn:aws:kms:us-east-1:00000000:key/a1c6858d-a353-465a-93b8-6dbfa2530e1a",
+    "alias": "customer-address-encryption-key",
+    "encryptionKey": "36d652ccb5f8c2740182576f47f477f127d40c87865fc52e1d41dfa6684dc690",
+    "enabled": true,
+    "multiRegion": false,
+    "origin": "AWS_KMS",
+    "keySpec": "SYMMETRIC_DEFAULT",
+    "keyUsage": "ENCRYPT_DECRYPT"
+  }
+]
+```
+
 ## Feature Coverage
 
 ### SNS
@@ -216,6 +236,15 @@ Example `sqs-queue.json`:
 | [SendMessage](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html)       | :white_check_mark: | :white_check_mark: | Can also sends message from queue list in UI.                          |
 | [ReceiveMessage](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_ReceiveMessage.html) | :white_check_mark: | :white_check_mark: |                                                                        |
 | [DeleteMessage](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_DeleteMessage.html)   | :white_check_mark: | :white_check_mark: | UI that displays list of all deleted messages (message history).       |
+
+### KMS
+
+At present, the AWS KMS functionality is partially supported, specifically for symmetric encryption and decryption. The dashboard UI allows users to view key usage history, as well as create and delete KMS keys.
+
+| Operation                                                                       | Mock Support       | Dashboard Support  | Comment                                      |
+| ------------------------------------------------------------------------------- | ------------------ | ------------------ | -------------------------------------------- |
+| [Encrypt](https://docs.aws.amazon.com/kms/latest/APIReference/API_Encrypt.html) | :white_check_mark: | :white_check_mark: | Encryption is also supported through the UI. |
+| [Decrypt](https://docs.aws.amazon.com/kms/latest/APIReference/API_Decrypt.html) | :white_check_mark: | :white_check_mark: | Decryption is also supported through the UI. |
 
 ## Local Development
 

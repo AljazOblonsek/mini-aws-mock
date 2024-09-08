@@ -9,6 +9,7 @@ import { SnsApiModule } from './modules/sns/api/sns.api.module';
 import { SqsApiModule } from './modules/sqs/api/sqs.api.module';
 import { SseModule } from './common/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { KmsApiModule } from './modules/kms/api/kms.api.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EventEmitterModule.forRoot(),
     MockModule,
     ConditionalModule.registerWhen(ScheduleModule.forRoot(), (env) => env.NODE_ENV !== 'test'),
+    KmsApiModule,
     SnsApiModule,
     SqsApiModule,
     SseModule,

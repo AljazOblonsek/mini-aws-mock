@@ -1,6 +1,6 @@
 {
   "name": "@mini-aws-mock/api",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "",
   "author": "",
   "private": true,
@@ -49,6 +49,7 @@
   "devDependencies": {
     "@aws-sdk/client-sns": "^3.623.0",
     "@aws-sdk/client-sqs": "^3.623.0",
+    "@aws-sdk/client-kms": "^3.623.0",
     "@faker-js/faker": "^8.4.1",
     "@nestjs/cli": "^10.4.2",
     "@nestjs/schematics": "^10.1.3",
