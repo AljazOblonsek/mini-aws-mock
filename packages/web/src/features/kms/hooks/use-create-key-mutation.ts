@@ -10,6 +10,7 @@ export const useCreateKeyMutation = () => {
     mutationFn: createKey,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['keys'] });
+      queryClient.invalidateQueries({ queryKey: ['encryption-history'] });
       toast.success(`Successfully created new key "${variables.alias}".`);
     },
   }));

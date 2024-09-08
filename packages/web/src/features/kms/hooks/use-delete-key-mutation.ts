@@ -10,6 +10,7 @@ export const useDeleteKeyMutation = () => {
     mutationFn: deleteKey,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['keys'] });
+      queryClient.invalidateQueries({ queryKey: ['encryption-history'] });
       toast.success(`Successfully deleted key "${variables.alias}".`);
     },
   }));

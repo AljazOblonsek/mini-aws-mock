@@ -118,6 +118,11 @@ export const Sidebar = () => {
             <Typography fontWeight="500">KMS</Typography>
           </ListItem>
           <SidebarListItem icon={<KeyIcon />} title="Keys" onClick={() => navigate('/kms/keys')} />
+          <SidebarListItem
+            icon={<RestoreIcon />}
+            title="Encryption History"
+            onClick={() => navigate('/kms/encryption-history')}
+          />
           <Divider />
         </List>
       </Drawer>
