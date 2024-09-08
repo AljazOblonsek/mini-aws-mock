@@ -3,6 +3,7 @@
   "rules": [
     "constants/*",
     "dtos/*",
+    "enums/*",
     "sse/*"
   ]
 }
