@@ -6,7 +6,7 @@
 
 ![Dashboard Preview](./assets/dashboard-preview.png)
 
-Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services locally. It features a Docker image and a user-friendly UI for managing the mock. Currently, it supports a subset of SNS & SQS services. You can view the [feature coverage here](#feature-coverage).
+Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services locally. It features a Docker image and a user-friendly UI for managing the mock. Currently, it supports a subset of SNS, SQS & KMS services. You can view the [feature coverage here](#feature-coverage).
 
 ## Table of Contents
 
@@ -23,6 +23,8 @@ Mini AWS Mock is a simple AWS emulator, designed to run and emulate AWS services
   - [Initial Data Files and Schemas](#initial-data-files-and-schemas)
 - [Feature Coverage](#feature-coverage)
   - [SNS](#sns)
+  - [SQS](#sqs)
+  - [KMS](#kms)
 - [Local Development](#local-development)
   - [Prerequisites](#local-development-prerequisites)
   - [Setup & Run](#setup--run)
