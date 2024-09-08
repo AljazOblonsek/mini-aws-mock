@@ -5,13 +5,14 @@ import {
   LockOpen as LockOpenIcon,
 } from '@suid/icons-material';
 import { For, Match, Switch, createSignal } from 'solid-js';
-import { EncryptDecryptAction, KmsKeyDto } from '@mini-aws-mock/shared';
+import { KmsKeyDto } from '@mini-aws-mock/shared';
 import { useSearchParams } from '@solidjs/router';
 import { Table, useConfirmDialog } from '@/common';
 import { useKeysQuery } from '../hooks/use-keys-query';
 import { useDeleteKeyMutation } from '../hooks/use-delete-key-mutation';
 import { CreateKeyModal } from '../components/create-key-modal';
-import { EncryptDecryptModal } from '../components/encrypt-decrypt-modal';
+import { EncryptionModal } from '../components/encryption-modal';
+import { EncryptionAction } from '../types/encryption-action';
 
 export const KeysPage = () => {
   const keysQuery = useKeysQuery();
@@ -20,12 +21,12 @@ export const KeysPage = () => {
   const [searchParams, setSearchParams] = useSearchParams<{ search: string }>();
   const [search, setSearch] = createSignal(searchParams.search || '');
   const [isCreateKeyModalOpen, setIsCreateKeyModalOpen] = createSignal(false);
-  const [encryptDecryptModal, setEncryptDecryptModal] = createSignal<{
+  const [encryptionModal, setEncryptionModal] = createSignal<{
     isOpen: boolean;
-    action: EncryptDecryptAction;
+    action: EncryptionAction;
     keyAlias: string;
     keyId: string;
-  }>({ isOpen: false, action: EncryptDecryptAction.Encrypt, keyAlias: '', keyId: '' });
+  }>({ isOpen: false, action: 'encrypt', keyAlias: '', keyId: '' });
 
   const filteredKeys = (): KmsKeyDto[] => {
     if (!keysQuery.data) {
@@ -105,9 +106,9 @@ export const KeysPage = () => {
                           <IconButton
                             color="primary"
                             onClick={() =>
-                              setEncryptDecryptModal({
+                              setEncryptionModal({
                                 isOpen: true,
-                                action: EncryptDecryptAction.Encrypt,
+                                action: 'encrypt',
                                 keyAlias: key.alias,
                                 keyId: key.id,
                               })
@@ -118,9 +119,9 @@ export const KeysPage = () => {
                           <IconButton
                             color="primary"
                             onClick={() =>
-                              setEncryptDecryptModal({
+                              setEncryptionModal({
                                 isOpen: true,
-                                action: EncryptDecryptAction.Decrypt,
+                                action: 'decrypt',
                                 keyAlias: key.alias,
                                 keyId: key.id,
                               })
@@ -142,14 +143,12 @@ export const KeysPage = () => {
         </Box>
       </Box>
       <CreateKeyModal isOpen={isCreateKeyModalOpen()} setIsOpen={setIsCreateKeyModalOpen} />
-      <EncryptDecryptModal
-        isOpen={encryptDecryptModal().isOpen}
-        setIsOpen={(isOpen: boolean) =>
-          setEncryptDecryptModal((previous) => ({ ...previous, isOpen }))
-        }
-        action={encryptDecryptModal().action}
-        keyAlias={encryptDecryptModal().keyAlias}
-        keyId={encryptDecryptModal().keyId}
+      <EncryptionModal
+        isOpen={encryptionModal().isOpen}
+        setIsOpen={(isOpen: boolean) => setEncryptionModal((previous) => ({ ...previous, isOpen }))}
+        action={encryptionModal().action}
+        keyAlias={encryptionModal().keyAlias}
+        keyId={encryptionModal().keyId}
       />
     </>
   );

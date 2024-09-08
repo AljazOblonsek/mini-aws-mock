@@ -9,24 +9,21 @@ import {
 } from '@suid/material';
 import { createSignal } from 'solid-js';
 import { plainToInstance } from 'class-transformer';
-import {
-  EncryptDecryptAction,
-  KmsDecryptRequestDto,
-  KmsEncryptRequestDto,
-} from '@mini-aws-mock/shared';
+import { KmsDecryptRequestDto, KmsEncryptRequestDto } from '@mini-aws-mock/shared';
 import { PrettyError } from '@/common';
 import { useEncryptMutation } from '../hooks/use-encrypt-mutation';
 import { useDecryptMutation } from '../hooks/use-decrypt-mutation';
+import { EncryptionAction } from '../types/encryption-action';
 
-type EncryptDecryptModalProps = {
+type EncryptionModalProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  action: EncryptDecryptAction;
+  action: EncryptionAction;
   keyAlias: string;
   keyId: string;
 };
 
-export const EncryptDecryptModal = (props: EncryptDecryptModalProps) => {
+export const EncryptionModal = (props: EncryptionModalProps) => {
   const [content, setContent] = createSignal('');
   const [errors, setErrors] = createSignal<PrettyError[]>([]);
   const [resultContent, setResultContent] = createSignal('');
@@ -47,7 +44,7 @@ export const EncryptDecryptModal = (props: EncryptDecryptModalProps) => {
       return;
     }
 
-    if (props.action === EncryptDecryptAction.Encrypt) {
+    if (props.action === 'encrypt') {
       const dto = plainToInstance(KmsEncryptRequestDto, {
         content: content(),
         keyId: props.keyId,
@@ -105,13 +102,12 @@ export const EncryptDecryptModal = (props: EncryptDecryptModalProps) => {
         }}
       >
         <DialogTitle>
-          {props.action === EncryptDecryptAction.Encrypt ? 'Encrypt' : 'Decrypt'} Content with{' '}
-          {props.keyAlias}
+          {props.action === 'encrypt' ? 'Encrypt' : 'Decrypt'} Content with {props.keyAlias}
         </DialogTitle>
         <DialogContent>
           {resultContent() ? (
             <TextField
-              label={`${props.action === EncryptDecryptAction.Encrypt ? 'Encrypted' : 'Decrypted'} Content`}
+              label={`${props.action === 'encrypt' ? 'Encrypted' : 'Decrypted'} Content`}
               fullWidth
               multiline
               rows={4}
@@ -145,9 +141,7 @@ export const EncryptDecryptModal = (props: EncryptDecryptModalProps) => {
             Close
           </Button>
           {!resultContent() && (
-            <Button type="submit">
-              {props.action === EncryptDecryptAction.Encrypt ? 'Encrypt' : 'Decrypt'}
-            </Button>
+            <Button type="submit">{props.action === 'encrypt' ? 'Encrypt' : 'Decrypt'}</Button>
           )}
         </DialogActions>
       </Box>
