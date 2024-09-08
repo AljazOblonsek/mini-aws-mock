@@ -22,4 +22,7 @@ export class KmsKeyDto {
 
   @ApiProperty({ enumName: 'KeyUsage', enum: KeyUsage })
   keyUsage: KeyUsage;
+
+  @ApiProperty()
+  encryptionHistoryLength: number;
 }

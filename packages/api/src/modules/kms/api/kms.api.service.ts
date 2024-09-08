@@ -55,6 +55,7 @@ export class KmsApiService {
         createdAt: key.createdAt,
         keySpec: key.keySpec,
         keyUsage: key.keyUsage,
+        encryptionHistoryLength: await this.getLengthOfEncryptionHistory(key),
       });
     }
 
@@ -96,6 +97,7 @@ export class KmsApiService {
       createdAt: newKey.createdAt,
       keySpec: newKey.keySpec,
       keyUsage: newKey.keyUsage,
+      encryptionHistoryLength: await this.getLengthOfEncryptionHistory(newKey),
     };
   }
 
@@ -203,5 +205,9 @@ export class KmsApiService {
     }));
 
     return encryptionHistoryDto;
+  }
+
+  private async getLengthOfEncryptionHistory(key: KmsKey): Promise<number> {
+    return await this.kmsEncryptionHistoryModel.count({ where: { keyId: key.id } });
   }
 }
