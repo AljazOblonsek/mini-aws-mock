@@ -19,18 +19,18 @@ import {
 } from '@mini-aws-mock/shared';
 
 @ApiTags('KMS API')
-@Controller('/kms/keys')
+@Controller('kms')
 export class KmsApiController {
   constructor(private readonly kmsApiService: KmsApiService) {}
 
-  @Get()
+  @Get('keys')
   @ApiOperation({ summary: 'Returns list of all keys.' })
   @ApiOkResponse({ type: KmsKeyDto, isArray: true })
   async getKeys(): Promise<KmsKeyDto[]> {
     return await this.kmsApiService.getKeys();
   }
 
-  @Post()
+  @Post('keys')
   @ApiOperation({ summary: 'Create a new key.' })
   @ApiCreatedResponse({ type: KmsApiService })
   @ApiBadRequestResponse({
@@ -40,7 +40,7 @@ export class KmsApiController {
     return await this.kmsApiService.createKey(dto);
   }
 
-  @Delete(':id')
+  @Delete('keys/:id')
   @ApiOperation({ summary: 'Deletes a key.' })
   @ApiNoContentResponse()
   @ApiNotFoundResponse({ description: 'Topic not found by arn.' })
