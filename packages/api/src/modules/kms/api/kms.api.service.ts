@@ -8,10 +8,13 @@ import { InjectModel } from '@nestjs/sequelize';
 import { ConfigService } from '@nestjs/config';
 import { KmsKey } from '../entities/kms-key.entity';
 import {
+  EncryptionAction,
+  EncryptionKind,
   KeySpec,
   KeyUsage,
   KmsDecryptRequestDto,
   KmsDecryptResponseDto,
+  KmsEncryptionHistoryDto,
   KmsEncryptRequestDto,
   KmsEncryptResponseDto,
   KmsKeyCreateRequestDto,
@@ -125,6 +128,15 @@ export class KmsApiService {
       plaintextBlob,
     });
 
+    await this.kmsEncryptionHistoryModel.create({
+      encryptionAction: EncryptionAction.Encrypt,
+      encryptionKind: EncryptionKind.LocalUi,
+      input: plaintextBlob.toString('base64'),
+      output: encrypted.toString('base64'),
+      createdAt: new Date(),
+      keyId: key.id,
+    });
+
     return {
       content: encrypted.toString('base64'),
     };
@@ -150,6 +162,15 @@ export class KmsApiService {
 
     const decrypted = decrypt({ ciphertextBlob, encryptionKey: key.encryptionKey });
 
+    await this.kmsEncryptionHistoryModel.create({
+      encryptionAction: EncryptionAction.Decrypt,
+      encryptionKind: EncryptionKind.LocalUi,
+      input: dto.content,
+      output: decrypted.toString('base64'),
+      createdAt: new Date(),
+      keyId: key.id,
+    });
+
     return {
       content: decrypted.toString(),
     };
@@ -163,5 +184,24 @@ export class KmsApiService {
     }
 
     return key;
+  }
+
+  async getEncryptionHistory(): Promise<KmsEncryptionHistoryDto[]> {
+    const encryptionHistory = await this.kmsEncryptionHistoryModel.findAll({
+      order: [['createdAt', 'DESC']],
+      include: [KmsKey],
+    });
+
+    const encryptionHistoryDto: KmsEncryptionHistoryDto[] = encryptionHistory.map((e) => ({
+      encryptionAction: e.encryptionAction,
+      encryptionKind: e.encryptionKind,
+      input: e.input,
+      output: e.output,
+      createdAt: e.createdAt,
+      keyId: e.kmsKey.id,
+      keyAlias: e.kmsKey.alias,
+    }));
+
+    return encryptionHistoryDto;
   }
 }

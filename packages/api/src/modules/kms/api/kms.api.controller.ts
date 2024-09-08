@@ -12,6 +12,7 @@ import { KmsApiService } from './kms.api.service';
 import {
   KmsDecryptRequestDto,
   KmsDecryptResponseDto,
+  KmsEncryptionHistoryDto,
   KmsEncryptRequestDto,
   KmsEncryptResponseDto,
   KmsKeyCreateRequestDto,
@@ -19,18 +20,18 @@ import {
 } from '@mini-aws-mock/shared';
 
 @ApiTags('KMS API')
-@Controller('kms')
+@Controller('/kms')
 export class KmsApiController {
   constructor(private readonly kmsApiService: KmsApiService) {}
 
-  @Get('keys')
+  @Get('/keys')
   @ApiOperation({ summary: 'Returns list of all keys.' })
   @ApiOkResponse({ type: KmsKeyDto, isArray: true })
   async getKeys(): Promise<KmsKeyDto[]> {
     return await this.kmsApiService.getKeys();
   }
 
-  @Post('keys')
+  @Post('/keys')
   @ApiOperation({ summary: 'Create a new key.' })
   @ApiCreatedResponse({ type: KmsApiService })
   @ApiBadRequestResponse({
@@ -40,7 +41,7 @@ export class KmsApiController {
     return await this.kmsApiService.createKey(dto);
   }
 
-  @Delete('keys/:id')
+  @Delete('/keys/:id')
   @ApiOperation({ summary: 'Deletes a key.' })
   @ApiNoContentResponse()
   @ApiNotFoundResponse({ description: 'Topic not found by arn.' })
@@ -48,7 +49,7 @@ export class KmsApiController {
     await this.kmsApiService.deleteKey(id);
   }
 
-  @Post('encrypt')
+  @Post('/encrypt')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Encrypts the given content and returns it in base64 format.' })
   @ApiOkResponse({ type: KmsEncryptResponseDto })
@@ -56,11 +57,18 @@ export class KmsApiController {
     return await this.kmsApiService.encrypt(dto);
   }
 
-  @Post('decrypt')
+  @Post('/decrypt')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Takes content in base64 format and attemps to decrypt it.' })
   @ApiOkResponse({ type: KmsDecryptResponseDto })
   async decrypt(@Body() dto: KmsDecryptRequestDto): Promise<KmsDecryptResponseDto> {
     return await this.kmsApiService.decrypt(dto);
+  }
+
+  @Get('/encryption-history')
+  @ApiOperation({ summary: 'Returns whole history of encryptions using the KMS keys.' })
+  @ApiOkResponse({ type: KmsEncryptionHistoryDto, isArray: true })
+  async getEncryptionHistory(): Promise<KmsEncryptionHistoryDto[]> {
+    return await this.kmsApiService.getEncryptionHistory();
   }
 }

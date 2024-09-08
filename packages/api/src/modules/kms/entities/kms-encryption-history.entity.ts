@@ -17,7 +17,13 @@ export class KmsEncryptionHistory extends Model {
    * Holds base64 content of what was provided when calling the API / AWS SDK.
    */
   @Column
-  content: string;
+  input: string;
+
+  /**
+   * Holds base64 content of what was returned from the API / AWS SDK.
+   */
+  @Column
+  output: string;
 
   @Column
   createdAt: Date;

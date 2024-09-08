@@ -2,6 +2,7 @@ export { KmsDecryptRequestDto } from './kms-decrypt-request.dto';
 export { KmsDecryptResponseDto } from './kms-decrypt-response.dto';
 export { KmsEncryptRequestDto } from './kms-encrypt-request.dto';
 export { KmsEncryptResponseDto } from './kms-encrypt-response.dto';
+export { KmsEncryptionHistoryDto } from './kms-encryption-history.dto';
 export { KmsKeyCreateRequestDto } from './kms-key-create-request.dto';
 export { KmsKeyDto } from './kms-key.dto';
 export { MessageAttributeRequestDto } from './message-attribute-request.dto';

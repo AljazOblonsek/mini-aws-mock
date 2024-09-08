@@ -28,6 +28,7 @@ export const generateKmsKeyStub = (
     origin: faker.helpers.enumValue(KmsOrigin),
     keySpec: faker.helpers.enumValue(KeySpec),
     keyUsage: faker.helpers.enumValue(KeyUsage),
+    encryptionHistory: [],
   };
 
   return { ...defaultOptions, ...data };
