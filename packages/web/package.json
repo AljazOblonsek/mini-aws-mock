@@ -1,7 +1,7 @@
 {
   "name": "@mini-aws-mock/web",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "start:dev": "vite",
