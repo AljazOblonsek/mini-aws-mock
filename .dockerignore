@@ -5,6 +5,8 @@ coverage/
 **/dist
 **/node_modules
 tests/
+packages/api/data/
+packages/api/initial-data/
 *.env
 .gitignore
 README.md

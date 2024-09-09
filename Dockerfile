@@ -1,10 +1,10 @@
-FROM node:18.17.1-alpine AS node
+FROM node:18.17.1-alpine AS pnpm-base
 
-RUN apk update && apk add bash
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
-RUN npm install -g pnpm
-
-FROM node AS builder
+FROM pnpm-base AS builder-base
 
 WORKDIR /app
 
@@ -15,43 +15,45 @@ COPY ./packages/api/package.json ./packages/api/package.json
 COPY ./packages/shared/package.json ./packages/shared/package.json
 COPY ./packages/web/package.json ./packages/web/package.json
 
-RUN pnpm install
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm --filter @mini-aws-mock/api run build
-RUN pnpm --filter @mini-aws-mock/web run build
-
-FROM node AS final
+FROM builder-base AS builder-api
 
 WORKDIR /app
 
-COPY ./package.json ./package.json
-COPY ./pnpm-lock.yaml ./pnpm-lock.yaml
-COPY ./pnpm-workspace.yaml ./pnpm-workspace.yaml
-COPY ./packages/api/package.json ./packages/api/package.json
-COPY ./packages/shared/package.json ./packages/shared/package.json
-COPY ./packages/web/package.json ./packages/web/package.json
+RUN pnpm run --filter @mini-aws-mock/api build
+RUN pnpm deploy --filter @mini-aws-mock/api --prod /app/packages/api/production-deploy
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages/api/node_modules ./packages/api/node_modules
-COPY --from=builder /app/packages/web/node_modules ./packages/web/node_modules
+FROM builder-base AS builder-web
 
-# Api
-COPY --from=builder /app/packages/api/dist ./packages/api/dist
+WORKDIR /app
 
-# Web UI
-COPY --from=builder /app/packages/web/dist ./packages/web/dist
+# Required for `modify-spa-index-file.sh` script
+RUN apk update && apk add bash
+
+RUN pnpm run --filter @mini-aws-mock/web build
+
+# Workaround to replace `@nestjs/swagger` import with static asset
 COPY ./docker-scripts/web/modify-spa-index-file.sh ./modify-spa-index-file.sh
 RUN chmod +x ./modify-spa-index-file.sh
 RUN ./modify-spa-index-file.sh
 RUN rm ./modify-spa-index-file.sh
 COPY ./packages/web/shims/nestjs-swagger.shim.js ./packages/web/dist/assets/nestjs-swagger.shim.js
 
+FROM node:18.17.1-alpine AS runtime
 
-RUN pnpm prune --prod
+RUN npm i -g serve@^14.2.1 concurrently@^9.0.0
+
+# Copy production ready API build
+COPY --from=builder-api /app/packages/api/production-deploy /app/packages/api
+
+# Copy production ready Web UI build
+COPY --from=builder-web /app/packages/web/package.json /app/packages/web/package.json
+COPY --from=builder-web /app/packages/web/dist /app/packages/web/dist
 
 EXPOSE 3000
 EXPOSE 8000
 
-ENTRYPOINT ["pnpm", "run", "prod"]
+ENTRYPOINT ["concurrently", "\"npm run --prefix /app/packages/api start:prod\"", "\"npm run --prefix /app/packages/web start:prod\"", "--names", "api,web"]
