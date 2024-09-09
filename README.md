@@ -51,12 +51,14 @@ To start the mock, run the following command:
 
 ```bash
 docker run \
+    -it \
     -e AWS_REGION=us-east-1 \
     -e AWS_USER_ID='00000000' \
     -e AWS_ACCESS_KEY=mock-access-key \
     -e AWS_SECRET_KEY=mock-secret-key \
     -p 3000:3000 \
     -p 8000:8000 \
+    --rm \
     aljazo/mini-aws-mock:latest
 ```
 
