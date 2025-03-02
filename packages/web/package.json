@@ -13,24 +13,24 @@
   },
   "dependencies": {
     "@mini-aws-mock/shared": "workspace:*",
-    "@solidjs/router": "^0.12.4",
+    "@solidjs/router": "^0.12.5",
     "@suid/icons-material": "^0.6.11",
     "@suid/material": "^0.15.1",
-    "@tanstack/solid-query": "^5.28.5",
+    "@tanstack/solid-query": "^5.66.11",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.0",
-    "reflect-metadata": "^0.2.0",
-    "serve": "^14.2.1",
-    "solid-js": "^1.8.15",
+    "class-validator": "^0.14.1",
+    "reflect-metadata": "^0.2.2",
+    "serve": "^14.2.4",
+    "solid-js": "^1.9.5",
     "solid-toast": "^0.5.0"
   },
   "devDependencies": {
     "@suid/vite-plugin": "^0.1.5",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
-    "eslint-plugin-solid": "^0.13.1",
-    "vite": "^5.1.7",
-    "vite-plugin-solid": "^2.10.1",
-    "vite-tsconfig-paths": "^4.3.1"
+    "eslint-plugin-solid": "^0.13.2",
+    "vite": "^5.4.14",
+    "vite-plugin-solid": "^2.11.6",
+    "vite-tsconfig-paths": "^4.3.2"
   }
 }
