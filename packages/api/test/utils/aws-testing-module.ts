@@ -24,7 +24,11 @@ export class AwsTestingModule {
       rawBody: true,
       logger: false,
     });
-    this.app.use(json({ type: ['application/x-amz-json-1.0', 'application/x-amz-json-1.1'] }));
+    this.app.use(
+      json({
+        type: ['application/x-amz-json-1.0', 'application/x-amz-json-1.1', 'application/json'],
+      })
+    );
 
     await this.app.init();
 

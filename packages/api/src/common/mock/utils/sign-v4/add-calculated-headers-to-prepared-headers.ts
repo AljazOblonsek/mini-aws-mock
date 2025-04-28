@@ -1,5 +1,12 @@
 import { hash } from './hash-utils';
 
+const HEADERS_TO_CALCULATE_VALUES_FOR = [
+  'application/x-www-form-urlencoded',
+  'application/x-amz-json-1.0',
+  'application/x-amz-json-1.1',
+  'application/json',
+];
+
 export const addCalculatedHeadersToPreparedHeaders = (
   preparedHeaders: Record<string, string>,
   textBody: string
@@ -10,13 +17,7 @@ export const addCalculatedHeadersToPreparedHeaders = (
     return preparedAndCalculatedHeaders;
   }
 
-  if (
-    ![
-      'application/x-www-form-urlencoded',
-      'application/x-amz-json-1.0',
-      'application/x-amz-json-1.1',
-    ].includes(preparedHeaders['content-type'])
-  ) {
+  if (!HEADERS_TO_CALCULATE_VALUES_FOR.includes(preparedHeaders['content-type'])) {
     return preparedAndCalculatedHeaders;
   }
 
