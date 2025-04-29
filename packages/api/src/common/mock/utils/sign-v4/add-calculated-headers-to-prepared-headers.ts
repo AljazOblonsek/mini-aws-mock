@@ -13,16 +13,18 @@ export const addCalculatedHeadersToPreparedHeaders = (
 ): Record<string, string> => {
   const preparedAndCalculatedHeaders = { ...preparedHeaders };
 
-  if (!('content-type' in preparedHeaders)) {
-    return preparedAndCalculatedHeaders;
+  if ('content-type' in preparedHeaders) {
+    if (HEADERS_TO_CALCULATE_VALUES_FOR.includes(preparedHeaders['content-type'])) {
+      preparedAndCalculatedHeaders['content-length'] = textBody.length.toString();
+      preparedAndCalculatedHeaders['x-amz-content-sha256'] = hash(textBody);
+    }
   }
 
-  if (!HEADERS_TO_CALCULATE_VALUES_FOR.includes(preparedHeaders['content-type'])) {
-    return preparedAndCalculatedHeaders;
+  if (textBody === '') {
+    // AWS still expectshashed empty string in the `x-amz-content-sha256` header even if there is no request body
+    // But does not want the `content-length` header
+    preparedAndCalculatedHeaders['x-amz-content-sha256'] = hash('');
   }
-
-  preparedAndCalculatedHeaders['content-length'] = textBody.length.toString();
-  preparedAndCalculatedHeaders['x-amz-content-sha256'] = hash(textBody);
 
   // Sort the headers alphabetically again because new ones were added
   return Object.keys(preparedAndCalculatedHeaders)

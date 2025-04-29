@@ -40,10 +40,12 @@ export const verifyV4Signature = ({
 
   let textBody = '';
 
-  if (awsRequestType === AwsRequestType.XmlRequest) {
-    textBody = request.rawBody?.toString() || '';
-  } else if (awsRequestType === AwsRequestType.JsonRequest) {
-    textBody = JSON.stringify(request.body);
+  if (request.method !== 'GET') {
+    if (awsRequestType === AwsRequestType.XmlRequest) {
+      textBody = request.rawBody?.toString() || '';
+    } else if (awsRequestType === AwsRequestType.JsonRequest) {
+      textBody = JSON.stringify(request.body);
+    }
   }
 
   const serverSignature = getV4Signature({
