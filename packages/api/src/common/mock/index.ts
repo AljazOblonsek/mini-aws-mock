@@ -13,6 +13,8 @@ export { InternalFailureException } from './exceptions/internal-failure.exceptio
 export { InvalidActionException } from './exceptions/invalid-action.exception';
 export { ValidationErrorException } from './exceptions/validation-error.exception';
 
+export { MockExceptionsFilter } from './filters/mock-exception.filter';
+
 export { AwsActionOptions } from './types/aws-action-options.type';
 export { StubBaseOptions } from './types/stub-base-options.type';
 
