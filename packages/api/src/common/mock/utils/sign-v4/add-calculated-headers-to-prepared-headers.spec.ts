@@ -17,6 +17,7 @@ describe('addCalculatedHeadersToPreparedHeaders', () => {
       'x-amz-date': requestHeadersStub['x-amz-date'],
     });
   });
+
   it('should return original headers if `content-type` value is not equal to `application/x-www-form-urlencoded`', () => {
     const requestHeadersStub = {
       'x-amz-date': new Date().toISOString(),
@@ -32,6 +33,7 @@ describe('addCalculatedHeadersToPreparedHeaders', () => {
       'x-amz-date': requestHeadersStub['x-amz-date'],
     });
   });
+
   it('should return alphabetically sorted headers with calculated values if `content-type` value equal to `application/x-www-form-urlencoded`', () => {
     const requestHeadersStub = {
       'x-amz-date': new Date().toISOString(),
@@ -46,6 +48,21 @@ describe('addCalculatedHeadersToPreparedHeaders', () => {
       'content-type': requestHeadersStub['content-type'],
       host: requestHeadersStub.host,
       'x-amz-content-sha256': '43a52f1b13e69553410eaaba7592cf9be0fa90364563a438650319ceffca0b70',
+      'x-amz-date': requestHeadersStub['x-amz-date'],
+    });
+  });
+
+  it('should return alphabetically sorted headers with calculated empty value if `textBody` is an empty string', () => {
+    const requestHeadersStub = {
+      'x-amz-date': new Date().toISOString(),
+      host: 'localhost:8000',
+    } as const;
+
+    const calculatedHeaders = addCalculatedHeadersToPreparedHeaders(requestHeadersStub, '');
+
+    expect(calculatedHeaders).toMatchObject({
+      host: requestHeadersStub.host,
+      'x-amz-content-sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
       'x-amz-date': requestHeadersStub['x-amz-date'],
     });
   });
