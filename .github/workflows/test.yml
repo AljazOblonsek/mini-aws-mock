@@ -10,14 +10,14 @@ jobs:
     name: Test (api)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
-          node-version: 18.17.1
-      - uses: pnpm/action-setup@v3
+          node-version: 24.1.0
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
-          version: 8
+          version: 10.23.0
           run_install: false
       - name: Get pnpm store directory
         shell: bash

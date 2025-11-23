@@ -1,7 +1,10 @@
 import { SqsMessage } from '@/src/modules/sqs/entities/sqs-message.entity';
 import { SqsQueue } from '@/src/modules/sqs/entities/sqs-queue.entity';
 import { generateSqsQueueStub } from '@/src/modules/sqs/mock/stubs/sqs-queue.stub';
+import { AWS_SQS_QUERY_PROTOCOL_PACKAGE_VERSION } from '@/test/test.constants';
 import { AwsTestingModule } from '@/test/utils/aws-testing-module';
+import { getInstalledPackageVersion } from '@/test/utils/get-installed-package-version';
+import { isInstalledPackageVersionNewerThanGivenVersion } from '@/test/utils/is-current-package-version-newer-than-given-version';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { faker } from '@faker-js/faker';
 import { getModelToken } from '@nestjs/sequelize';
@@ -110,16 +113,37 @@ describe('SQS - SendMessage', () => {
       convertToFormat: 'aac',
     };
 
-    const messageAttributesStub = {
-      Type: {
-        DataType: 'String',
-        StringValue: 'AudioFormatConvert',
-      },
-      Processor: {
-        DataType: 'String',
-        StringValue: 'Fast',
-      },
-    };
+    // Ths order of keys in each attribute matters for this e2e test - it also depends on protocol type (e.g. json or query)
+    // Looks like AWS SDK does some sorting under the hood when json is used (e.g. if DataType is before StringValue - the SDK puts StringValue first instead in the dictionary)
+    const sqsClientVersion = await getInstalledPackageVersion('@aws-sdk/client-sqs');
+    const isAwsJsonProtocol =
+      sqsClientVersion &&
+      isInstalledPackageVersionNewerThanGivenVersion(
+        sqsClientVersion,
+        AWS_SQS_QUERY_PROTOCOL_PACKAGE_VERSION
+      );
+
+    const messageAttributesStub = isAwsJsonProtocol
+      ? {
+          Type: {
+            StringValue: 'AudioFormatConvert',
+            DataType: 'String',
+          },
+          Processor: {
+            StringValue: 'Fast',
+            DataType: 'String',
+          },
+        }
+      : {
+          Type: {
+            DataType: 'String',
+            StringValue: 'AudioFormatConvert',
+          },
+          Processor: {
+            DataType: 'String',
+            StringValue: 'Fast',
+          },
+        };
 
     const command = new SendMessageCommand({
       QueueUrl: sqsQueueStub.url,
