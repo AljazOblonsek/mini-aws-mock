@@ -110,14 +110,16 @@ describe('SQS - SendMessage', () => {
       convertToFormat: 'aac',
     };
 
+    // Ths order of keys in each attribute matters for this e2e test
+    // Looks like AWS SDK does some sorting under the hood (e.g. if DataType is before StringValue - the SDK puts StringValue first isntead if the dictionary)
     const messageAttributesStub = {
       Type: {
-        DataType: 'String',
         StringValue: 'AudioFormatConvert',
+        DataType: 'String',
       },
       Processor: {
-        DataType: 'String',
         StringValue: 'Fast',
+        DataType: 'String',
       },
     };
 
