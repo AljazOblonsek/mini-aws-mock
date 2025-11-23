@@ -110,18 +110,32 @@ describe('SQS - SendMessage', () => {
       convertToFormat: 'aac',
     };
 
-    // Ths order of keys in each attribute matters for this e2e test
-    // Looks like AWS SDK does some sorting under the hood (e.g. if DataType is before StringValue - the SDK puts StringValue first isntead if the dictionary)
-    const messageAttributesStub = {
-      Type: {
-        StringValue: 'AudioFormatConvert',
-        DataType: 'String',
-      },
-      Processor: {
-        StringValue: 'Fast',
-        DataType: 'String',
-      },
-    };
+    // Ths order of keys in each attribute matters for this e2e test - it also depends on protocol type (e.g. json or query)
+    // Looks like AWS SDK does some sorting under the hood when json is used (e.g. if DataType is before StringValue - the SDK puts StringValue first isntead if the dictionary)
+    const protocolShapeId = sqsClient.config.protocol.getShapeId();
+    const isAwsJsonProtocol = protocolShapeId.toLowerCase().includes('json');
+
+    const messageAttributesStub = isAwsJsonProtocol
+      ? {
+          Type: {
+            StringValue: 'AudioFormatConvert',
+            DataType: 'String',
+          },
+          Processor: {
+            StringValue: 'Fast',
+            DataType: 'String',
+          },
+        }
+      : {
+          Type: {
+            DataType: 'String',
+            StringValue: 'AudioFormatConvert',
+          },
+          Processor: {
+            DataType: 'String',
+            StringValue: 'Fast',
+          },
+        };
 
     const command = new SendMessageCommand({
       QueueUrl: sqsQueueStub.url,
