@@ -27,7 +27,7 @@
   "devDependencies": {
     "@suid/vite-plugin": "^0.1.5",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-plugin-solid": "^0.13.2",
     "vite": "^5.4.14",
     "vite-plugin-solid": "^2.11.6",
