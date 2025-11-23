@@ -25,7 +25,7 @@
     "solid-toast": "^0.5.0"
   },
   "devDependencies": {
-    "@suid/vite-plugin": "^0.1.5",
+    "@suid/vite-plugin": "^0.4.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-plugin-solid": "^0.13.2",
