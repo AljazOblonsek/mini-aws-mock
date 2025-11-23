@@ -1,6 +1,9 @@
 packages:
-  - './packages/api'
-  - './packages/shared'
-  - './packages/web'
+  - ./packages/api
+  - ./packages/shared
+  - ./packages/web
+
 onlyBuiltDependencies:
-  - sqlite3@5.1.7
+  - '@nestjs/core'
+  - esbuild
+  - sqlite3
