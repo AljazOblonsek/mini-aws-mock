@@ -114,7 +114,7 @@ describe('SQS - SendMessage', () => {
     };
 
     // Ths order of keys in each attribute matters for this e2e test - it also depends on protocol type (e.g. json or query)
-    // Looks like AWS SDK does some sorting under the hood when json is used (e.g. if DataType is before StringValue - the SDK puts StringValue first isntead if the dictionary)
+    // Looks like AWS SDK does some sorting under the hood when json is used (e.g. if DataType is before StringValue - the SDK puts StringValue first instead in the dictionary)
     const sqsClientVersion = await getInstalledPackageVersion('@aws-sdk/client-sqs');
     const isAwsJsonProtocol =
       sqsClientVersion &&
