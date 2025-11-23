@@ -25,7 +25,7 @@ FROM builder-base AS builder-api
 WORKDIR /app
 
 RUN pnpm run --filter @mini-aws-mock/api build
-RUN pnpm deploy --filter @mini-aws-mock/api --prod /app/packages/api/production-deploy
+RUN pnpm deploy --filter @mini-aws-mock/api --prod /app/packages/api/production-deploy --legacy
 
 FROM builder-base AS builder-web
 
@@ -43,7 +43,7 @@ RUN ./modify-spa-index-file.sh
 RUN rm ./modify-spa-index-file.sh
 COPY ./packages/web/shims/nestjs-swagger.shim.js ./packages/web/dist/assets/nestjs-swagger.shim.js
 
-FROM node:18.17.1-alpine AS runtime
+FROM node:24.11.1-alpine AS runtime
 
 RUN npm i -g serve@^14.2.1 concurrently@^9.0.0
 
