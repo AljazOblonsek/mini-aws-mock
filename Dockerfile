@@ -1,8 +1,8 @@
-FROM node:24.11.1-alpine AS pnpm-base
+FROM node:24.13.0-alpine AS pnpm-base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack prepare pnpm@10.23.0 --activate
+RUN corepack prepare pnpm@10.28.2 --activate
 RUN corepack enable
 
 FROM pnpm-base AS builder-base
@@ -43,7 +43,7 @@ RUN ./modify-spa-index-file.sh
 RUN rm ./modify-spa-index-file.sh
 COPY ./packages/web/shims/nestjs-swagger.shim.js ./packages/web/dist/assets/nestjs-swagger.shim.js
 
-FROM node:24.11.1-alpine AS runtime
+FROM node:24.13.0-alpine AS runtime
 
 RUN npm i -g serve@^14.2.1 concurrently@^9.0.0
 
